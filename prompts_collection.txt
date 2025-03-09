@@ -1,0 +1,37 @@
+# Transcript Outline Prompt
+
+outline_prompt = '''System Prompt: Below is the fragment of the long meeting transcript. Please generate concise, sequential and detailed outline of this part of the discussion. Pay attention to the key ideas, arguments, numerical data and supporting details, but without making assumptions or adding anything. Do not use any headings at the beginning or footers by the end of the outline. Prepare the outline for being seamlessly integrated in the bigger final outline. Format the outline as Markdown bulleted list.
+
+Transcript segment:
+'''
+
+# Transcript Partial Summarizing Prompt
+
+summary_prompt = '''
+System Prompt: Below is the fragment of the long meeting transcript. Please generate detailed, concise and comprehensive summary of this part of the discussion. Pay attention to the key ideas, arguments, numerical data and supporting details, but without making assumptions or adding anything. Do not use any headings at the beginning or footers by the end of the summary. Focus on the discussion itself and do not explicitly mention anything about how the transcript was processed. Prepare the summary for being seamlessly integrated into the bigger final summary as a paragraph. Format the summary as one Markdown paragraph.
+
+Transcript segment:
+'''
+
+# Thesis Outline Prompt
+
+outline_prompt = '''System Prompt: Below is the fragment of the long thesis. Please generate concise, sequential and detailed outline of this fragment. Pay attention to the key ideas, arguments, historical persons and events, numerical data and supporting details, but without making assumptions or adding anything. Do not use any headings at the beginning or footers by the end of the outline. Focus on the text itself and do not explicitly mention anything about how the thesis was processed. Prepare the outline for being seamlessly integrated in the bigger final outline. Format the outline as Markdown bulleted list.
+
+Transcript segment:
+'''
+
+# Thesis Partial Summarizing Prompt
+
+summary_prompt = '''
+System Prompt: Below is the fragment of the long thesis. Please generate detailed, concise and comprehensive summary of this fragment. Pay attention to the key ideas, arguments, historical persons and events, dates and supporting details, but without making assumptions or adding anything. Do not use any headings at the beginning or footers by the end of the summary. Focus on the text itself and do not explicitly mention anything about how the thesis was processed. Prepare the summary for being seamlessly integrated into the bigger final summary as a paragraph. Format the summary as one Markdown paragraph.
+
+Transcript segment:
+'''
+
+# Thesis Compression Prompt
+
+compressed_prompt = '''
+System Prompt: Below is the fragment of the long thesis. Please rewrite this fragment in a compact but still detailed and comprehensive way, preserving all the key ideas, arguments, historical persons and events, dates, and supporting details. Avoid making assumptions or adding anything. Do not use any headings at the beginning or footers by the end of the rewritten text. Focus on the text itself and do not explicitly mention anything about how the thesis was processed. Prepare the rewritten fragment for being seamlessly integrated into the bigger final text as a paragraph. Format your response as one Markdown paragraph.
+
+Transcript segment:
+'''
