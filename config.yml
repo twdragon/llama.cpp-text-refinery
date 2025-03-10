@@ -3,10 +3,10 @@ server_executable:
     Windows: "C:\\Users\\andrey.vukolov\\src\\llama.cpp\\llama-server.exe"
     Linux: "/home/twdragon/src/llama.cpp/build/bin/llama-server"
 llm_dir:
-    Windows: "C:\\Users\\andrey.vukolov\\src\\llama.cpp\\models"
+    Windows: "F:\\twdragon\\src\\llama.cpp\\models"
     Linux: "/home/twdragon/src/llama.cpp/models"
-llm_filename: "Ministral-8B-Instruct-2410-Q4_K_L.gguf"
-# llm_filename: "Ministral-8B-Instruct-2410-Q5_K_M.gguf"
+# llm_filename: "Ministral-8B-Instruct-2410-Q4_K_L.gguf"
+llm_filename: "Ministral-8B-Instruct-2410.Q5_K_M.gguf"
 # llm_filename: "Mistral-Nemo-Instruct-2407.Q4_K_S.gguf"
 llama_server_https: false
 llama_server_host: "127.0.0.1"
@@ -21,6 +21,12 @@ window_overlap_coefficient: 0.05
 prediction_limit_coefficient: 0.4272
 
 # Model settings
+Ministral-8B-Instruct-2410.Q5_K_M:
+    temperature: 0.75
+    cache_prompt: false
+    repeat_penalty: 1.09
+    repeat_last_n: 24
+
 Ministral-8B-Instruct-2410-Q4_K_L:
     temperature: 0.75
     cache_prompt: false
