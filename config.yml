@@ -1,0 +1,60 @@
+# llama.cpp server instantiation parameters
+server_executable:
+    Windows: "C:\\Users\\andrey.vukolov\\src\\llama.cpp\\llama-server.exe"
+    Linux: "/home/twdragon/src/llama.cpp/build/bin/llama-server"
+llm_dir:
+    Windows: "C:\\Users\\andrey.vukolov\\src\\llama.cpp\\models"
+    Linux: "/home/twdragon/src/llama.cpp/models"
+llm_filename: "Ministral-8B-Instruct-2410-Q4_K_L.gguf"
+# llm_filename: "Ministral-8B-Instruct-2410-Q5_K_M.gguf"
+# llm_filename: "Mistral-Nemo-Instruct-2407.Q4_K_S.gguf"
+llama_server_https: false
+llama_server_host: "127.0.0.1"
+llama_server_port: 8080
+llama_server_generation_endpoint: "completion"
+llama_server_tokenizer_endpoint: "tokenize"
+llama_server_diagnostic_endpoint: "health"
+
+# Tokenizer settings
+window_width_coefficient: 0.6714
+window_overlap_coefficient: 0.05
+prediction_limit_coefficient: 0.4272
+
+# Model settings
+Ministral-8B-Instruct-2410-Q4_K_L:
+    temperature: 0.75
+    cache_prompt: false
+    repeat_penalty: 1.09
+    repeat_last_n: 24
+
+Mistral-Nemo-Instruct-2407.Q4_K_S:
+    temperature: 0.3
+    cache_prompt: false
+    repeat_penalty: 1.1
+    repeat_last_n: 24
+
+# Predefined prompts for presets
+presets:
+    - name: "Scientific meeting"
+      cli_alias: "scientific-meeting"
+      prompts: 
+        - name: "Summary"
+          text_before: |+
+            System Prompt: Below is the fragment of the long meeting transcript. Please generate detailed, concise and comprehensive summary of this part of the discussion. Pay attention to the key ideas, arguments, numerical data and supporting details, but without making assumptions or adding anything. Do not use any headings at the beginning or footers by the end of the summary. Focus on the discussion itself and do not explicitly mention anything about how the transcript was processed. Prepare the summary for being seamlessly integrated into the bigger final summary as a paragraph. Format the summary as one Markdown paragraph.
+            
+            Transcript fragment:
+            
+          text_after: |+
+            
+            Response: 
+            
+        - name: "Outline"
+          text_before: |+
+            System Prompt: Below is the fragment of the long meeting transcript. Please generate concise, sequential and detailed outline of this part of the discussion. Pay attention to the key ideas, arguments, numerical data and supporting details, but without making assumptions or adding anything. Do not use any headings at the beginning or footers by the end of the outline. Prepare the outline for being seamlessly integrated in the bigger final outline. Format the outline as Markdown bulleted list.
+            
+            Transcript fragment:
+            
+          text_after: |+
+            
+            Response:
+            
