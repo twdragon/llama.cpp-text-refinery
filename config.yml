@@ -74,3 +74,36 @@ presets:
             
             Response:
             
+    - name: "Scientific thesis"
+      cli_alias: "scientific-thesis"
+      prompts: 
+        - name: "Compressed Summary"
+          text_before: |+
+            System Prompt: Below is the fragment of the long scientific thesis. Please rewrite this fragment in a compact but still detailed and comprehensive way, preserving all the key ideas, arguments, historical persons and events, dates, and supporting details. Avoid making assumptions or adding anything. Do not use any headings at the beginning or footers by the end of the rewritten text. Focus on the text itself and do not explicitly mention anything about how the thesis was processed. Prepare the rewritten fragment for being seamlessly integrated into the bigger final text as a paragraph. Format your response as one Markdown paragraph.
+            
+            Fragment of the text:
+            
+          text_after: |+
+            
+            Response: 
+            
+        - name: "Outline"
+          text_before: |+
+            System Prompt: Below is the fragment of the long scientific thesis. Please generate concise, sequential and detailed outline of this fragment. Pay attention to the key ideas, arguments, historical persons and events, numerical data and supporting details, but without making assumptions or adding anything. Do not use any headings at the beginning or footers by the end of the outline. Focus on the text itself and do not explicitly mention anything about how the thesis was processed. Prepare the outline for being seamlessly integrated in the bigger final outline. Format the outline as Markdown bulleted list.
+            
+            Fragment of the text:
+            
+          text_after: |+
+            
+            Response:
+            
+        - name: "Key Insights"
+          text_before: |+
+            System Prompt: Below is the fragment of the long scientific thesis. Please generate a list of 2-3 main key insights for this part of the text, if there are any. Do not make any assumptions or add anything. Do not use any headings at the beginning or footers by the end of the list of the key insights. Prepare the list for being seamlessly integrated in the bigger final list of key insights. Format the list as a Markdown bulleted list.
+            
+            Fragment of the text:
+            
+          text_after: |+
+            
+            Response:
+            
