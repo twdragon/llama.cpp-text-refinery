@@ -190,6 +190,7 @@ log.info('Running tokenizer')
 
 sentence_pattern = re.compile(r'(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?|\!)\s*(?:\n\s*)*')
 inline_pattern = re.compile(r'(?<![\.\?\!])\n+') 
+alphanumeric_pattern = re.compile(r'[^0-9a-zA-Z]+')
 transcript_handle = TRANSCRIPT_FILE.open('tr', encoding='utf-8')
 transcript = transcript_handle.read()
 transcript = re.sub(inline_pattern, ' ', transcript)
@@ -211,6 +212,8 @@ for sentence in sentences:
             tokens = json.loads(response.text)['tokens']
             total_tokens += len(tokens)
             sentence_borders.append(total_tokens)
+        else:
+            log.error('HTTP error: status code {} in tokenizer'.format(response.status_code))
 assert(len(sentences) == len(sentence_borders))
 log.info('Running on {} sentences'.format(len(sentence_borders)))
 
@@ -320,7 +323,7 @@ else:
 
 log.info('Saving results')
 for partname, mdtext in responses.items():
-    output_filename = TRANSCRIPT_FILE.parent.joinpath(str(TRANSCRIPT_FILE.stem + '.' + partname + '.md'))
+    output_filename = TRANSCRIPT_FILE.parent.joinpath(str(TRANSCRIPT_FILE.stem + '.' + re.sub(alphanumeric_pattern, '_', partname) + '.md'))
     output_handle = output_filename.open('wt', encoding='utf-8')
     output_handle.write(mdtext)
     output_handle.close()

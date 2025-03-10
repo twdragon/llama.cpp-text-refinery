@@ -64,3 +64,13 @@ presets:
             
             Response:
             
+        - name: "Key Insights"
+          text_before: |+
+            System Prompt: Below is the fragment of the long meeting transcript. Please generate a list of 2-3 main key insights for this part of the discussion, if there are any. Do not make any assumptions or add anything. Do not use any headings at the beginning or footers by the end of the list of the key insights. Prepare the list for being seamlessly integrated in the bigger final list of key insights. Format the list as a Markdown bulleted list.
+            
+            Transcript fragment:
+            
+          text_after: |+
+            
+            Response:
+            
