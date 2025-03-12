@@ -130,9 +130,8 @@ config_handler.close()
 LLAMASERVER_EXECUTABLE = config['server_executable'][platform.system()]
 LLAMASERVER_MODEL_FILENAME = config['llm_filename']
 LLAMASERVER_MODEL_PATH = Path(config['llm_dir'][platform.system()])
-if arguments.model is not None:
-    LLAMASERVER_MODEL_PATH = Path(arguments.model).resolve()
-LLAMASERVER_MODEL_PATH = LLAMASERVER_MODEL_PATH.joinpath(LLAMASERVER_MODEL_FILENAME).resolve()
+LLAMASERVER_MODEL_PATH = Path(arguments.model).resolve() if arguments.model is not None else LLAMASERVER_MODEL_PATH.joinpath(LLAMASERVER_MODEL_FILENAME).resolve()
+
 if not LLAMASERVER_MODEL_PATH.is_file():
     log.error('Model file \'{}\' not found!'.format(str(LLAMASERVER_MODEL_PATH)))
     exit(1)

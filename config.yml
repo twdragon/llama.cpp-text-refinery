@@ -39,6 +39,12 @@ Mistral-Nemo-Instruct-2407.Q4_K_S:
     repeat_penalty: 1.1
     repeat_last_n: 24
 
+Mistral-Nemo-Instruct-2407-Q4_K_M:
+    temperature: 0.3
+    cache_prompt: false
+    repeat_penalty: 1.1
+    repeat_last_n: 24
+
 # Predefined prompts for presets
 presets:
     - name: "Scientific meeting"
