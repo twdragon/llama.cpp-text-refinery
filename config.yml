@@ -52,7 +52,7 @@ presets:
       prompts: 
         - name: "Summary"
           text_before: |+
-            System Prompt: Below is the fragment of the long meeting transcript. Please generate detailed, concise and comprehensive summary of this part of the discussion. Pay attention to the key ideas, arguments, numerical data and supporting details, but without making assumptions or adding anything. Do not use any headings at the beginning or footers by the end of the summary. Focus on the discussion itself and do not explicitly mention anything about how the transcript was processed. Prepare the summary for being seamlessly integrated into the bigger final summary as a paragraph. Format the summary as one Markdown paragraph.
+            System Prompt: Below is a fragment of a long meeting transcript. Please generate a detailed and comprehensive summary of this part of the discussion. Capture key ideas, arguments, numerical data, and supporting details without making assumptions or adding information. Do not use headings or footers, and do not mention anything about how the transcript was processed. Ensure the summary flows naturally, avoiding repetitive sentence structures or predictable openings such as "The discussion revolves around...". Instead, use varied sentence structures and transitions to create an engaging and seamless narrative. Format the summary as a single Markdown paragraph so it integrates seamlessly into the final summary.
             
             Transcript fragment:
             
@@ -62,7 +62,7 @@ presets:
             
         - name: "Outline"
           text_before: |+
-            System Prompt: Below is the fragment of the long meeting transcript. Please generate concise, sequential and detailed outline of this part of the discussion. Pay attention to the key ideas, arguments, numerical data and supporting details, but without making assumptions or adding anything. Do not use any headings at the beginning or footers by the end of the outline. Prepare the outline for being seamlessly integrated in the bigger final outline. Format the outline as Markdown bulleted list.
+            System Prompt: Below is the fragment of the long meeting transcript. Please generate sequential and detailed outline of this part of the discussion. Pay attention to the key ideas, arguments, numerical data and supporting details, but without making assumptions or adding anything. Do not use any headings at the beginning or footers by the end of the outline. Prepare the outline for being seamlessly integrated in the bigger final outline. Format the outline as Markdown bulleted list.
             
             Transcript fragment:
             
@@ -85,7 +85,7 @@ presets:
       prompts: 
         - name: "Compressed Summary"
           text_before: |+
-            System Prompt: Below is the fragment of the long scientific thesis. Please rewrite this fragment in a compact but still detailed and comprehensive way, preserving all the key ideas, arguments, historical persons and events, dates, and supporting details. Avoid making assumptions or adding anything. Do not use any headings at the beginning or footers by the end of the rewritten text. Focus on the text itself and do not explicitly mention anything about how the thesis was processed. Prepare the rewritten fragment for being seamlessly integrated into the bigger final text as a paragraph. Format your response as one Markdown paragraph.
+            System Prompt: Below is the fragment of the long scientific thesis. Please rewrite this fragment in a compact but still detailed and comprehensive way, preserving all the key ideas, arguments, historical persons and events, dates, and supporting details. Avoid making assumptions or adding information. Do not use any headings at the beginning or footers by the end of the rewritten text. Focus on the text itself and do not explicitly mention anything about how the thesis was processed. Prepare the rewritten fragment for being seamlessly integrated into the bigger final text as a paragraph. Format your response as one Markdown paragraph.
             
             Fragment of the text:
             
@@ -95,7 +95,7 @@ presets:
             
         - name: "Outline"
           text_before: |+
-            System Prompt: Below is the fragment of the long scientific thesis. Please generate concise, sequential and detailed outline of this fragment. Pay attention to the key ideas, arguments, historical persons and events, numerical data and supporting details, but without making assumptions or adding anything. Do not use any headings at the beginning or footers by the end of the outline. Focus on the text itself and do not explicitly mention anything about how the thesis was processed. Prepare the outline for being seamlessly integrated in the bigger final outline. Format the outline as Markdown bulleted list.
+            System Prompt: Below is the fragment of the long scientific thesis. Please generate concise, sequential and detailed outline of this fragment. Pay attention to the key ideas, arguments, historical persons and events, numerical data and supporting details, but without making assumptions or adding information. Do not use any headings at the beginning or footers by the end of the outline. Focus on the text itself and do not explicitly mention anything about how the thesis was processed. Prepare the outline for being seamlessly integrated in the bigger final outline. Format the outline as Markdown bulleted list.
             
             Fragment of the text:
             
@@ -105,11 +105,24 @@ presets:
             
         - name: "Key Insights"
           text_before: |+
-            System Prompt: Below is the fragment of the long scientific thesis. Please generate a list of 2-3 main key insights for this part of the text, if there are any. Do not make any assumptions or add anything. Do not use any headings at the beginning or footers by the end of the list of the key insights. Prepare the list for being seamlessly integrated in the bigger final list of key insights. Format the list as a Markdown bulleted list.
+            System Prompt: Below is the fragment of the long scientific thesis. Please generate a list of 2-3 main key insights for this part of the text, if there are any. Do not make any assumptions or add information. Do not use any headings at the beginning or footers by the end of the list of the key insights. Prepare the list for being seamlessly integrated in the bigger final list of key insights. Format the list as a Markdown bulleted list.
             
             Fragment of the text:
             
           text_after: |+
             
             Response:
+            
+    - name: "Meeting summary only"
+      cli_alias: "scientific-meeting-summary-only"
+      prompts: 
+        - name: "Summary"
+          text_before: |+
+            System Prompt: Below is a fragment of a long meeting transcript. Please generate a detailed and comprehensive summary of this part of the discussion. Capture key ideas, arguments, numerical data, and supporting details without making assumptions or adding information. Do not use headings or footers, and do not mention anything about how the transcript was processed. Ensure the summary flows naturally, avoiding repetitive sentence structures or predictable openings such as "The discussion revolves around...". Instead, use varied sentence structures and transitions to create an engaging and seamless narrative. Format the summary as a single Markdown paragraph so it integrates seamlessly into the final summary.
+            
+            Transcript fragment:
+            
+          text_after: |+
+            
+            Response: 
             
