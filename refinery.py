@@ -25,6 +25,12 @@ def stop_http_llama_server(server_process, logger):
         server_process.kill()
 
 
+def remove_ffmpeg_artifacts(ffmpeg_output, whisper_output, logger):
+    logger.info('Removing artifacts\n\t{}\n\t{}'.format(str(ffmpeg_output), str(whisper_output)))
+    ffmpeg_output.unlink(missing_ok=True)
+    whisper_output.unlink(missing_ok=True)
+
+
 log = logging.getLogger('llama-refinery')
 logging.basicConfig(level=logging.INFO)
 
@@ -108,24 +114,93 @@ argument_parser.add_argument('-p', '--prompt-preset',
                              nargs='?',
                              type=str,
                              help='Select the prompt preset instead of the default (first appeared) one')
+argument_parser.add_argument('-wh', '--whisper', 
+                             action='store_true', 
+                             help='Use whisper.cpp utility to recognize speech. Requires whisper.cpp and ffmpeg being installed')
+argument_parser.add_argument('-wl', '--whisper-language', 
+                             action='store', 
+                             default=None,
+                             const=None,
+                             nargs='?',
+                             type=str,
+                             help='Select the language preset for whisper.cpp')
 
 arguments = argument_parser.parse_args()
 
+# Configuration loader
 CONFIG_FILE = Path(arguments.config)
-
 if not CONFIG_FILE.is_file():
     log.error('Configuration file {} not found, falling back to the default one {}'.format(arguments.config, str(DEFAULT_CONFIG)))
     CONFIG_FILE = DEFAULT_CONFIG
+config_handler = CONFIG_FILE.open('tr', encoding='utf-8')
+config = yaml.safe_load(config_handler)
+config_handler.close()
 
 if not Path(arguments.input_text).is_file():
     log.error('Input file \'{}\' not found!'.format(str(arguments.input_text)))
     exit(1)
+
 TRANSCRIPT_FILE = Path(arguments.input_text).resolve()
 
-# Configuration loader
-config_handler = CONFIG_FILE.open('tr', encoding='utf-8')
-config = yaml.safe_load(config_handler)
-config_handler.close()
+# Running Whisper if needed
+if arguments.whisper:
+    log.info('Extended speech recognition mode selected, treating the input file as multimedia')
+    log.info('Running audio processing')
+    ffmpeg_output_filename = TRANSCRIPT_FILE.parent.joinpath(str(TRANSCRIPT_FILE.stem) + '.wav')
+    whisper_output_filename = TRANSCRIPT_FILE.parent.joinpath(str(TRANSCRIPT_FILE.stem) + '.txt')
+    atexit.register(remove_ffmpeg_artifacts, ffmpeg_output_filename, whisper_output_filename, log)
+    FFMPEG_EXECUTABLE = config['whisper']['ffmpeg'][platform.system()]
+    if not Path(FFMPEG_EXECUTABLE).is_file():
+        log.error('FFMPEG executable file \'{}\' not found!'.format(FFMPEG_EXECUTABLE))
+        exit(1)
+    ffmpeg_cli_list = [FFMPEG_EXECUTABLE,
+                       '-i',
+                       str(TRANSCRIPT_FILE),
+                       '-vn',
+                       '-c:a',
+                       'pcm_s16le',
+                       '-ar',
+                       '16000',
+                       '-ac',
+                       '1',
+                       '-y',
+                       '-f',
+                       'wav',
+                       str(ffmpeg_output_filename)]
+    try:
+        subprocess.run(ffmpeg_cli_list, check=True)
+    except Exception as e:
+        logger.error('Error processing audio: {}'.format(str(e)))
+        exit(1)
+    log.info('Running speech recognition')
+    WHISPER_EXECUTABLE = config['whisper']['executable'][platform.system()]
+    if not Path(WHISPER_EXECUTABLE).is_file():
+        log.error('whisper.cpp executable file \'{}\' not found!'.format(WHISPER_EXECUTABLE))
+        exit(1)
+    WHISPER_MODEL_FILENAME = config['whisper']['model_filename']
+    WHISPER_MODEL_PATH = Path(config['whisper']['model_dir'][platform.system()])
+    WHISPER_MODEL_PATH = WHISPER_MODEL_PATH.joinpath(WHISPER_MODEL_FILENAME).resolve()
+    if not WHISPER_MODEL_PATH.is_file():
+        log.error('Whisper model file \'{}\' not found!'.format(str(WHISPER_MODEL_PATH)))
+        exit(1)
+    whisper_cli_list = [WHISPER_EXECUTABLE,
+                        '-m',
+                        str(WHISPER_MODEL_PATH),
+                        '-mc',
+                        '4',
+                        '-otxt',
+                        '-l',
+                        'auto' if arguments.whisper_language is None else str(arguments.whisper_language),
+                        '-f',
+                        str(ffmpeg_output_filename),
+                        '-of',
+                        TRANSCRIPT_FILE.parent.joinpath(str(TRANSCRIPT_FILE.stem))]
+    try:
+        subprocess.run(whisper_cli_list, check=True)
+    except Exception as e:
+        logger.error('Error processing audio: {}'.format(str(e)))
+        exit(1)
+    TRANSCRIPT_FILE = whisper_output_filename.resolve()
 
 LLAMASERVER_EXECUTABLE = config['server_executable'][platform.system()]
 LLAMASERVER_MODEL_FILENAME = config['llm_filename']
