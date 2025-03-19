@@ -223,8 +223,8 @@ if arguments.external_server:
         log.error('llama.cpp server executable file \'{}\' not found!'.format(str(LLAMASERVER_EXECUTABLE)))
         exit(1)
     if not LLAMASERVER_MODEL_PATH.is_file():
-    log.error('Model file \'{}\' not found!'.format(str(LLAMASERVER_MODEL_PATH)))
-    exit(1)
+        log.error('Model file \'{}\' not found!'.format(str(LLAMASERVER_MODEL_PATH)))
+        exit(1)
     server_cli_list = [LLAMASERVER_EXECUTABLE, 
                        '--model',
                        str(LLAMASERVER_MODEL_PATH),
