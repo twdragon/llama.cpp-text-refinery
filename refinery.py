@@ -25,10 +25,11 @@ def stop_http_llama_server(server_process, logger):
         server_process.kill()
 
 
-def remove_ffmpeg_artifacts(ffmpeg_output, whisper_output, logger):
+def remove_ffmpeg_artifacts(ffmpeg_output, whisper_output, logger, reuse_txt):
     logger.info('Removing artifacts\n\t{}\n\t{}'.format(str(ffmpeg_output), str(whisper_output)))
     ffmpeg_output.unlink(missing_ok=True)
-    whisper_output.unlink(missing_ok=True)
+    if not reuse_txt:
+        whisper_output.unlink(missing_ok=True)
 
 
 log = logging.getLogger('llama-refinery')
@@ -124,6 +125,9 @@ argument_parser.add_argument('-wl', '--whisper-language',
                              nargs='?',
                              type=str,
                              help='Select the language preset for whisper.cpp')
+argument_parser.add_argument('-wt', '--whisper-keep-txt', 
+                             action='store_true', 
+                             help='Do not remove TXT artifact from whisper.cpp')
 
 arguments = argument_parser.parse_args()
 
@@ -148,7 +152,7 @@ if arguments.whisper:
     log.info('Running audio processing')
     ffmpeg_output_filename = TRANSCRIPT_FILE.parent.joinpath(str(TRANSCRIPT_FILE.stem) + '.wav')
     whisper_output_filename = TRANSCRIPT_FILE.parent.joinpath(str(TRANSCRIPT_FILE.stem) + '.txt')
-    atexit.register(remove_ffmpeg_artifacts, ffmpeg_output_filename, whisper_output_filename, log)
+    atexit.register(remove_ffmpeg_artifacts, ffmpeg_output_filename, whisper_output_filename, log, arguments.whisper_keep_txt)
     FFMPEG_EXECUTABLE = config['whisper']['ffmpeg'][platform.system()]
     if not Path(FFMPEG_EXECUTABLE).is_file():
         log.error('FFMPEG executable file \'{}\' not found!'.format(FFMPEG_EXECUTABLE))
@@ -207,10 +211,6 @@ LLAMASERVER_MODEL_FILENAME = config['llm_filename']
 LLAMASERVER_MODEL_PATH = Path(config['llm_dir'][platform.system()])
 LLAMASERVER_MODEL_PATH = Path(arguments.model).resolve() if arguments.model is not None else LLAMASERVER_MODEL_PATH.joinpath(LLAMASERVER_MODEL_FILENAME).resolve()
 
-if not LLAMASERVER_MODEL_PATH.is_file():
-    log.error('Model file \'{}\' not found!'.format(str(LLAMASERVER_MODEL_PATH)))
-    exit(1)
-
 LLAMASERVER_URI = 'http://' if not config['llama_server_https'] else 'https://'
 LLAMASERVER_URI += config['llama_server_host'] + ':' + str(config['llama_server_port']) + '/'
 LLAMASERVER_GENERATION_ENDPOINT = LLAMASERVER_URI + config['llama_server_generation_endpoint']
@@ -219,6 +219,12 @@ LLAMASERVER_CHECKUP_ENDPOINT = LLAMASERVER_URI + config['llama_server_diagnostic
 
 if arguments.external_server:
     log.info('Running server')
+    if not Path(LLAMASERVER_EXECUTABLE).is_file():
+        log.error('llama.cpp server executable file \'{}\' not found!'.format(str(LLAMASERVER_EXECUTABLE)))
+        exit(1)
+    if not LLAMASERVER_MODEL_PATH.is_file():
+    log.error('Model file \'{}\' not found!'.format(str(LLAMASERVER_MODEL_PATH)))
+    exit(1)
     server_cli_list = [LLAMASERVER_EXECUTABLE, 
                        '--model',
                        str(LLAMASERVER_MODEL_PATH),
