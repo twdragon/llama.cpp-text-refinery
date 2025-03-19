@@ -60,16 +60,6 @@ presets:
             
             Response: 
             
-        - name: "Outline"
-          text_before: |+
-            System Prompt: Below is the fragment of the long meeting transcript. Please generate sequential and detailed outline of this part of the discussion. Pay attention to the key ideas, arguments, numerical data and supporting details, but without making assumptions or adding anything. Do not use any headings at the beginning or footers by the end of the outline. Prepare the outline for being seamlessly integrated in the bigger final outline. Format the outline as Markdown bulleted list.
-            
-            Transcript fragment:
-            
-          text_after: |+
-            
-            Response:
-            
         - name: "Key Insights"
           text_before: |+
             System Prompt: Below is the fragment of the long meeting transcript. Please generate a list of 2-3 main key insights for this part of the discussion, if there are any. Do not make any assumptions or add anything. Do not use any headings at the beginning or footers by the end of the list of the key insights. Prepare the list for being seamlessly integrated in the bigger final list of key insights. Format the list as a Markdown bulleted list.
@@ -80,6 +70,51 @@ presets:
             
             Response:
             
+        - name: "Outline"
+          text_before: |+
+            System Prompt: Below is the fragment of the long meeting transcript. Please generate sequential and detailed outline of this part of the discussion. Pay attention to the key ideas, arguments, numerical data and supporting details, but without making assumptions or adding anything. Do not use any headings at the beginning or footers by the end of the outline. Prepare the outline for being seamlessly integrated in the bigger final outline. Format the outline as Markdown bulleted list.
+            
+            Transcript fragment:
+            
+          text_after: |+
+            
+            Response:
+            
+# =============================================================================
+    - name: "Scientific meeting - detailed summary"
+      cli_alias: "scientific-meeting-detailed-summary"
+      prompts: 
+        - name: "Summary"
+          text_before: |+
+            System Prompt: Below is a fragment of a long meeting transcript. Please retell this part of the discussion in very detailed, precise and comprehensive manner, without making assumptions or adding information. Do not use headings or footers, and do not mention anything about how the transcript was processed. Ensure the retelling flows naturally, avoiding repetitive sentence structures or predictable openings such as "The discussion revolves around...". Format your retelling as Markdown paragraphs so it integrates seamlessly into the final article.
+            
+            Transcript fragment:
+            
+          text_after: |+
+            
+            Response: 
+            
+        - name: "Key Insights"
+          text_before: |+
+            System Prompt: Below is the fragment of the long meeting transcript. Please generate a detailed list of 2-3 main key insights for this part of the discussion, if there are any. Do not make any assumptions or add anything. Do not use any headings at the beginning or footers by the end of the list of the key insights. Prepare the list for being seamlessly integrated in the bigger final list of key insights. Format the list as a Markdown bulleted list.
+            
+            Transcript fragment:
+            
+          text_after: |+
+            
+            Response:
+            
+        - name: "Outline"
+          text_before: |+
+            System Prompt: Below is the fragment of the long meeting transcript. Please generate sequential and detailed outline of this part of the discussion. Pay attention to the key ideas, arguments, numerical data and supporting details, but without making assumptions or adding anything. Do not use any headings at the beginning or footers by the end of the outline. Prepare the outline for being seamlessly integrated in the bigger final outline. Format the outline as Markdown bulleted list.
+            
+            Transcript fragment:
+            
+          text_after: |+
+            
+            Response:
+            
+# =============================================================================
     - name: "Scientific thesis"
       cli_alias: "scientific-thesis"
       prompts: 
@@ -93,16 +128,6 @@ presets:
             
             Response: 
             
-        - name: "Outline"
-          text_before: |+
-            System Prompt: Below is the fragment of the long scientific thesis. Please generate concise, sequential and detailed outline of this fragment. Pay attention to the key ideas, arguments, historical persons and events, numerical data and supporting details, but without making assumptions or adding information. Do not use any headings at the beginning or footers by the end of the outline. Focus on the text itself and do not explicitly mention anything about how the thesis was processed. Prepare the outline for being seamlessly integrated in the bigger final outline. Format the outline as Markdown bulleted list.
-            
-            Fragment of the text:
-            
-          text_after: |+
-            
-            Response:
-            
         - name: "Key Insights"
           text_before: |+
             System Prompt: Below is the fragment of the long scientific thesis. Please generate a list of 2-3 main key insights for this part of the text, if there are any. Do not make any assumptions or add information. Do not use any headings at the beginning or footers by the end of the list of the key insights. Prepare the list for being seamlessly integrated in the bigger final list of key insights. Format the list as a Markdown bulleted list.
@@ -113,6 +138,17 @@ presets:
             
             Response:
             
+        - name: "Outline"
+          text_before: |+
+            System Prompt: Below is the fragment of the long scientific thesis. Please generate concise, sequential and detailed outline of this fragment. Pay attention to the key ideas, arguments, historical persons and events, numerical data and supporting details, but without making assumptions or adding information. Do not use any headings at the beginning or footers by the end of the outline. Focus on the text itself and do not explicitly mention anything about how the thesis was processed. Prepare the outline for being seamlessly integrated in the bigger final outline. Format the outline as Markdown bulleted list.
+            
+            Fragment of the text:
+            
+          text_after: |+
+            
+            Response:
+            
+# =============================================================================
     - name: "Meeting summary only"
       cli_alias: "scientific-meeting-summary-only"
       prompts: 
@@ -126,6 +162,22 @@ presets:
             
             Response: 
             
+# =============================================================================
+    - name: "Meeting retelling only"
+      cli_alias: "scientific-meeting-retelling"
+      prompts: 
+        - name: "Retelling"
+          text_before: |+
+            System Prompt: Below is a fragment of a long meeting transcript. Please retell this part of the discussion in very detailed, precise and comprehensive manner, without making assumptions or adding information. Do not use headings or footers, and do not mention anything about how the transcript was processed. Ensure the retelling flows naturally, avoiding repetitive sentence structures or predictable openings such as "The discussion revolves around...". Format your retelling as Markdown paragraphs so it integrates seamlessly into the final article.
+            
+            Transcript fragment:
+            
+          text_after: |+
+            
+            Response: 
+            
+# =============================================================================
+
 # [OPTIONAL] Whisper.cpp control section, requires only to recognize speech from video
 whisper:
     ffmpeg:

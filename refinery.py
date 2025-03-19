@@ -115,6 +115,9 @@ argument_parser.add_argument('-p', '--prompt-preset',
                              nargs='?',
                              type=str,
                              help='Select the prompt preset instead of the default (first appeared) one')
+argument_parser.add_argument('-j', '--join-text', 
+                             action='store_true', 
+                             help='Join all the generated text into one Markdown document')
 argument_parser.add_argument('-wh', '--whisper', 
                              action='store_true', 
                              help='Use whisper.cpp utility to recognize speech. Requires whisper.cpp and ffmpeg being installed')
@@ -339,7 +342,7 @@ if preset is None:
 log.info('Running processing')
 responses = dict()
 for prompt in preset['prompts']:
-    responses[prompt['name'].lower()] = str()
+    responses[prompt['name']] = str()
 
 if batched:
     for i, batch in enumerate(batches):
@@ -364,11 +367,11 @@ if batched:
                             token = line.decode('utf-8')[6:]
                             json_object = json.loads(token)
                             content = json_object.get("content", "")
-                            responses[prompt['name'].lower()] += content
+                            responses[prompt['name']] += content
                             # print('\rAcquired {} tokens'.format(response_tokens), end='', flush=True)
                             print(content, end='', flush=True)
                     print()
-                    responses[prompt['name'].lower()] += '\n\n'
+                    responses[prompt['name']] += '\n\n'
                 else:
                     log.error('HTTP error: status code {}'.format(response.status_code))
 else:
@@ -393,18 +396,29 @@ else:
                         token = line.decode('utf-8')[6:]
                         json_object = json.loads(token)
                         content = json_object.get("content", "")
-                        responses[prompt['name'].lower()] += content
+                        responses[prompt['name']] += content
                         # print('\rAcquired {} tokens'.format(response_tokens), end='', flush=True)
                         print(content, end='', flush=True)
                 print()
-                responses[prompt['name'].lower()] += '\n\n'
+                responses[prompt['name']] += '\n\n'
             else:
                 log.error('HTTP error: status code {}'.format(response.status_code))
 
 log.info('Saving results')
-for partname, mdtext in responses.items():
-    output_filename = TRANSCRIPT_FILE.parent.joinpath(str(TRANSCRIPT_FILE.stem + '.' + re.sub(alphanumeric_pattern, '_', partname) + '.md'))
+if arguments.join_text:
+    output_filename = TRANSCRIPT_FILE.parent.joinpath(str(TRANSCRIPT_FILE.stem + '.md'))
     output_handle = output_filename.open('wt', encoding='utf-8')
-    output_handle.write(mdtext)
+    output_handle.write('# {}\n\n'.format(str(TRANSCRIPT_FILE.stem)))
+    for partname, mdtext in responses.items():
+        output_handle.write('## {}\n\n'.format(partname))
+        output_handle.write(mdtext)
+        output_handle.write('\n')
     output_handle.close()
-    log.info('Output for the prompt {} is saved to {}'.format(partname, str(output_filename)))
+    log.info('Full output saved to {}'.format(str(output_filename)))
+else:
+    for partname, mdtext in responses.items():
+        output_filename = TRANSCRIPT_FILE.parent.joinpath(str(TRANSCRIPT_FILE.stem + '.' + re.sub(alphanumeric_pattern, '_', partname.lower()) + '.md'))
+        output_handle = output_filename.open('wt', encoding='utf-8')
+        output_handle.write(mdtext)
+        output_handle.close()
+        log.info('Output for the prompt {} is saved to {}'.format(partname, str(output_filename)))
