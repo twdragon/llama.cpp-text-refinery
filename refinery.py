@@ -26,10 +26,149 @@ def stop_http_llama_server(server_process, logger):
 
 
 def remove_ffmpeg_artifacts(ffmpeg_output, whisper_output, logger, reuse_txt):
-    logger.info('Removing artifacts\n\t{}\n\t{}'.format(str(ffmpeg_output), str(whisper_output)))
+    info_string = 'Removing artifacts\n\t{}\n\t{}'.format(str(ffmpeg_output), str(whisper_output)) if not reuse_txt else 'Removing artifact\n\t{}'.format(str(ffmpeg_output))
+    logger.info(info_string)
     ffmpeg_output.unlink(missing_ok=True)
     if not reuse_txt:
         whisper_output.unlink(missing_ok=True)
+
+
+def render_markdown(heading, responses, filename):
+    import markdown
+    md_extensions = ['extra',
+                     'toc',
+                     'codehilite',
+                     'markdown_katex',
+                     'abbr',
+                     'sane_lists']
+    markdown_doc = '# {}\n\n'.format(heading)
+    for partname, mdtext in responses.items():
+        markdown_doc +='## {}\n\n'.format(partname)
+        markdown_doc += mdtext
+        markdown_doc += '\n\n'
+    html_doc = '''<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=85%device-width, initial-scale=1.0">
+    <meta name="description" content="application/xhtml+xml"/>
+    <meta charset="UTF-8"/>
+    <style>
+        /* GitLab-like Markdown Styling by ChatGPT 4o */
+        body {{
+            font-family: "Times New Roman", Times, serif;
+            font-size: 14pt;
+            line-height: 1.6;
+            color: #333;
+            background-color: #fff;
+            margin: 20px;
+            padding: 20px;
+        }}
+
+        h1, h2, h3, h4, h5, h6 {{
+            font-weight: bold;
+            color: #24292e;
+            margin-top: 1em;
+            margin-bottom: 0.5em;
+        }}
+
+        h1 {{ font-size: 24pt; border-bottom: 2px solid #eaecef; padding-bottom: 0.3em; }}
+        h2 {{ font-size: 22pt; border-bottom: 1px solid #eaecef; padding-bottom: 0.3em; }}
+        h3 {{ font-size: 20pt; }}
+        h4 {{ font-size: 18pt; }}
+        h5 {{ font-size: 16pt; }}
+        h6 {{ font-size: 14pt; color: #6a737d; }}
+
+        p {{
+            margin-bottom: 1em;
+            font-size: 14pt;
+        }}
+
+        ul, ol {{
+            padding-left: 2em;
+            font-size: 14pt;
+        }}
+
+        li {{
+            margin-bottom: 0.3em;
+        }}
+
+        pre {{
+            background: #f6f8fa;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 11pt;
+        }}
+
+        code {{
+            font-family: monospace;
+            background: #f6f8fa;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-size: 12pt;
+        }}
+
+        pre code {{
+            display: block;
+            padding: 10px;
+        }}
+
+        blockquote {{
+            margin: 0;
+            padding: 0.5em 1em;
+            color: #6a737d;
+            border-left: 4px solid #dfe2e5;
+            background: #f8f9fa;
+            font-size: 14pt;
+        }}
+
+        table {{
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1em;
+            font-size: 14pt;
+        }}
+
+        table, th, td {{
+            border: 1px solid #dfe2e5;
+        }}
+
+        th, td {{
+            padding: 8px;
+            text-align: left;
+        }}
+
+        th {{
+            background: #f6f8fa;
+            font-weight: bold;
+        }}
+
+        a {{
+            color: #0366d6;
+            text-decoration: none;
+            font-size: 14pt;
+        }}
+
+        a:hover {{
+            text-decoration: underline;
+        }}
+    </style>
+    <title>{doctitle}</title>
+</head>
+<body>
+{docrender}
+</body>
+</html>
+'''
+    markdown_doc = re.sub(r'\n{3,}', '\n\n', markdown_doc.strip())
+    list_pattern = re.compile(r'(\s*[-*+]\s+|\s*\d+\.\s+)(.*)\n\n')
+    markdown_doc = re.sub(list_pattern, r'\1\2\n', markdown_doc)
+    html_doc = html_doc.format(doctitle=heading, docrender=markdown.markdown(markdown_doc, extensions=md_extensions))
+    html_handler = filename.open('wt', encoding='utf-8')
+    html_handler.write(html_doc)
+    html_handler.close()
+    print(markdown_doc)
 
 
 log = logging.getLogger('llama-refinery')
@@ -131,8 +270,13 @@ argument_parser.add_argument('-wl', '--whisper-language',
 argument_parser.add_argument('-wt', '--whisper-keep-txt', 
                              action='store_true', 
                              help='Do not remove TXT artifact from whisper.cpp')
+argument_parser.add_argument('-rm', '--render-markdown', 
+                             action='store_true', 
+                             help='Render Markdown to HTML (requires Python Markdown extension package installed)')
 
+# Argument preservation chain
 arguments = argument_parser.parse_args()
+keep_text = arguments.whisper_keep_txt
 
 # Configuration loader
 CONFIG_FILE = Path(arguments.config)
@@ -155,7 +299,7 @@ if arguments.whisper:
     log.info('Running audio processing')
     ffmpeg_output_filename = TRANSCRIPT_FILE.parent.joinpath(str(TRANSCRIPT_FILE.stem) + '.wav')
     whisper_output_filename = TRANSCRIPT_FILE.parent.joinpath(str(TRANSCRIPT_FILE.stem) + '.txt')
-    atexit.register(remove_ffmpeg_artifacts, ffmpeg_output_filename, whisper_output_filename, log, arguments.whisper_keep_txt)
+    atexit.register(remove_ffmpeg_artifacts, ffmpeg_output_filename, whisper_output_filename, log, keep_text)
     FFMPEG_EXECUTABLE = config['whisper']['ffmpeg'][platform.system()]
     if not Path(FFMPEG_EXECUTABLE).is_file():
         log.error('FFMPEG executable file \'{}\' not found!'.format(FFMPEG_EXECUTABLE))
@@ -422,3 +566,10 @@ else:
         output_handle.write(mdtext)
         output_handle.close()
         log.info('Output for the prompt {} is saved to {}'.format(partname, str(output_filename)))
+
+if arguments.render_markdown:
+    output_filename = TRANSCRIPT_FILE.parent.joinpath(str(TRANSCRIPT_FILE.stem + '.html'))
+    log.info('Rendering HTML file {}'.format(output_filename))
+    render_markdown(str(TRANSCRIPT_FILE.stem),
+                    responses,
+                    output_filename)
