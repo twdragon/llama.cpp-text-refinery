@@ -180,14 +180,11 @@ presets:
 
 # [OPTIONAL] Whisper.cpp control section, requires only to recognize speech from video
 whisper:
-    ffmpeg:
-        Windows: "C:\\Program Files\\ffmpeg\\bin\\ffmpeg.exe"
-        Linux: "/util/ffmpeg/bin/ffmpeg"
     executable:
-        Windows: "C:\\Users\\andrey.vukolov\\src\\whisper.cpp\\main.exe"
+        Windows: "C:\\Users\\andrey.vukolov\\src\\whisper.cpp\\whisper-cli.exe"
         Linux: "/home/twdragon/src/whisper.cpp/build/bin/whisper-cli"
     model_dir:
-        Windows: "F:\\twdragon\\src\\whisper.cpp\\models\\large"
+        Windows: "C:\\Users\\andrey.vukolov\\src\\whisper.cpp\\models\\large"
         # Windows: "F:\\twdragon\\src\\whisper.cpp\\models\\base"
         # Linux: "/home/twdragon/src/whisper.cpp/models/base"
         Linux: "/home/twdragon/src/whisper.cpp/models/large"

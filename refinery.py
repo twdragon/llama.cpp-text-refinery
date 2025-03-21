@@ -44,11 +44,8 @@ def render_markdown(heading, responses, filename, integrate_thumbnails=None):
                      'sane_lists']
     markdown_doc = '# {}\n\n'.format(heading)
     if integrate_thumbnails is not None:
-        cnt = 1
         for thumbnail, frame in integrate_thumbnails:
             markdown_doc += '[ ![Sceencap]({}) ]({}) '.format(thumbnail, frame)
-            markdown_doc += '\n\n' if (cnt % 4) == 0 else ''
-            cnt +=1
         markdown_doc += '\n\n-----\n\n'
     for partname, mdtext in responses.items():
         markdown_doc +='## {}\n\n'.format(partname)
@@ -188,6 +185,7 @@ argument_parser = argparse.ArgumentParser(description='llama.cpp configurable te
 argument_parser.add_argument('input_text',
                              action='store', 
                              help='File containing input text for refining',
+                             nargs='?',
                              type=str)
 argument_parser.add_argument('-es', '--external-server', 
                              action='store_false', 
@@ -261,6 +259,9 @@ argument_parser.add_argument('-p', '--prompt-preset',
                              nargs='?',
                              type=str,
                              help='Select the prompt preset instead of the default (first appeared) one')
+argument_parser.add_argument('-lp', '--list-presets', 
+                             action='store_true', 
+                             help='List prompt presets, then exit')
 argument_parser.add_argument('-j', '--join-text', 
                              action='store_true', 
                              help='Join all the generated text into one Markdown document')
@@ -274,6 +275,9 @@ argument_parser.add_argument('-wl', '--whisper-language',
                              nargs='?',
                              type=str,
                              help='Select the language preset for whisper.cpp')
+argument_parser.add_argument('--whisper-translate', 
+                             action='store_true', 
+                             help='Set translation mode for whisper.cpp')
 argument_parser.add_argument('-wt', '--whisper-keep-txt', 
                              action='store_true', 
                              help='Do not remove TXT artifact from whisper.cpp')
@@ -283,6 +287,13 @@ argument_parser.add_argument('-rm', '--render-markdown',
 argument_parser.add_argument('--video-frames', 
                              action='store_true', 
                              help='Tries to extract 16 preview frames from the input video when rendering Markdown to HTML')
+argument_parser.add_argument('--video-frames-cnt', 
+                             action='store', 
+                             default=None,
+                             const=None,
+                             nargs='?',
+                             type=int,
+                             help='Number of the preview frames to generate [1..99]')
 
 # Argument preservation chain
 arguments = argument_parser.parse_args()
@@ -296,6 +307,12 @@ if not CONFIG_FILE.is_file():
 config_handler = CONFIG_FILE.open('tr', encoding='utf-8')
 config = yaml.safe_load(config_handler)
 config_handler.close()
+
+if arguments.list_presets:
+    log.info('Loading presets')
+    for preset in config['presets']:
+        print('\n{}\n\tCLI alias: {}\n\tPrompts: {}'.format(preset['name'], preset['cli_alias'], ', '.join(prompt['name'] for prompt in preset['prompts']) ))
+    exit(0)
 
 if not Path(arguments.input_text).is_file():
     log.error('Input file \'{}\' not found!'.format(str(arguments.input_text)))
@@ -333,13 +350,18 @@ if arguments.whisper:
             transcript_hash = hasher.hexdigest()
             images_dir = TRANSCRIPT_FILE.parent.joinpath('img')
             images_dir.mkdir(parents=False, exist_ok=True)
+            previews = 16
+            if arguments.video_frames_cnt < 2 or arguments.video_frames_cnt > 99:
+                log.warning('Insufficient number of preview frames. Please specify a number between 2 and 99')
+            else:
+                previews = arguments.video_frames_cnt
             frames_generation_cli_list = ['ffmpeg',
                                           '-i',
                                           str(TRANSCRIPT_FILE),
                                           '-ss',
-                                          '00:01:00',
+                                          '00:00:10',
                                           '-vf',
-                                          'fps=16/({} - 120):round=down'.format(str(video_duration)),
+                                          'fps={}/({} - 20):round=down'.format(previews, str(video_duration)),
                                           '-qscale:v',
                                           '8',
                                           '-fps_mode',
@@ -349,9 +371,9 @@ if arguments.whisper:
                                           '-i',
                                           str(TRANSCRIPT_FILE),
                                           '-ss',
-                                          '00:01:00',
+                                          '00:00:10',
                                           '-vf',
-                                          'fps=16/({} - 120):round=down,scale=300:-1'.format(str(video_duration)),
+                                          'fps={}/({} - 20):round=down,scale=300:-1'.format(previews, str(video_duration)),
                                           '-qscale:v',
                                           '8',
                                           '-fps_mode',
@@ -366,18 +388,14 @@ if arguments.whisper:
                 log.error('Error processing video: {}'.format(str(e)))
                 exit(1)
             video_frames = list()
-            for i in range(1, 17, 1):
+            for i in range(1, previews + 1, 1):
                 video_frames.append( ('./img/{}_thumb_{:02d}.jpg'.format(transcript_hash, i), './img/{}_full_{:02d}.jpg'.format(transcript_hash, i)) )
             log.info('Frame previews generated in {}'.format(str(images_dir)))
     log.info('Running audio processing')
     ffmpeg_output_filename = TRANSCRIPT_FILE.parent.joinpath(str(TRANSCRIPT_FILE.stem) + '.wav')
     whisper_output_filename = TRANSCRIPT_FILE.parent.joinpath(str(TRANSCRIPT_FILE.stem) + '.txt')
     atexit.register(remove_ffmpeg_artifacts, ffmpeg_output_filename, whisper_output_filename, log, keep_text)
-    FFMPEG_EXECUTABLE = config['whisper']['ffmpeg'][platform.system()]
-    if not Path(FFMPEG_EXECUTABLE).is_file():
-        log.error('FFMPEG executable file \'{}\' not found!'.format(FFMPEG_EXECUTABLE))
-        exit(1)
-    ffmpeg_cli_list = [FFMPEG_EXECUTABLE,
+    ffmpeg_cli_list = ['ffmpeg',
                        '-i',
                        str(TRANSCRIPT_FILE),
                        '-vn',
@@ -419,6 +437,8 @@ if arguments.whisper:
                         str(ffmpeg_output_filename),
                         '-of',
                         TRANSCRIPT_FILE.parent.joinpath(str(TRANSCRIPT_FILE.stem))]
+    if arguments.whisper_translate:
+        whisper_cli_list.append('-tr')
     try:
         subprocess.run(whisper_cli_list, check=True)
     except Exception as e:
