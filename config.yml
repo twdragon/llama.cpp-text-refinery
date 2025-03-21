@@ -189,6 +189,7 @@ whisper:
     model_dir:
         Windows: "F:\\twdragon\\src\\whisper.cpp\\models\\large"
         # Windows: "F:\\twdragon\\src\\whisper.cpp\\models\\base"
+        # Linux: "/home/twdragon/src/whisper.cpp/models/base"
         Linux: "/home/twdragon/src/whisper.cpp/models/large"
     model_filename: "ggml-large-v3.bin"
     # model_filename: "ggml-base.bin"

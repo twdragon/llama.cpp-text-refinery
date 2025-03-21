@@ -13,6 +13,7 @@ import platform
 import time
 import yaml
 import argparse
+import hashlib
 
 
 def stop_http_llama_server(server_process, logger):
@@ -33,7 +34,7 @@ def remove_ffmpeg_artifacts(ffmpeg_output, whisper_output, logger, reuse_txt):
         whisper_output.unlink(missing_ok=True)
 
 
-def render_markdown(heading, responses, filename):
+def render_markdown(heading, responses, filename, integrate_thumbnails=None):
     import markdown
     md_extensions = ['extra',
                      'toc',
@@ -42,6 +43,13 @@ def render_markdown(heading, responses, filename):
                      'abbr',
                      'sane_lists']
     markdown_doc = '# {}\n\n'.format(heading)
+    if integrate_thumbnails is not None:
+        cnt = 1
+        for thumbnail, frame in integrate_thumbnails:
+            markdown_doc += '[ ![Sceencap]({}) ]({}) '.format(thumbnail, frame)
+            markdown_doc += '\n\n' if (cnt % 4) == 0 else ''
+            cnt +=1
+        markdown_doc += '\n\n-----\n\n'
     for partname, mdtext in responses.items():
         markdown_doc +='## {}\n\n'.format(partname)
         markdown_doc += mdtext
@@ -168,7 +176,6 @@ def render_markdown(heading, responses, filename):
     html_handler = filename.open('wt', encoding='utf-8')
     html_handler.write(html_doc)
     html_handler.close()
-    print(markdown_doc)
 
 
 log = logging.getLogger('llama-refinery')
@@ -273,6 +280,9 @@ argument_parser.add_argument('-wt', '--whisper-keep-txt',
 argument_parser.add_argument('-rm', '--render-markdown', 
                              action='store_true', 
                              help='Render Markdown to HTML (requires Python Markdown extension package installed)')
+argument_parser.add_argument('--video-frames', 
+                             action='store_true', 
+                             help='Tries to extract 16 preview frames from the input video when rendering Markdown to HTML')
 
 # Argument preservation chain
 arguments = argument_parser.parse_args()
@@ -294,8 +304,71 @@ if not Path(arguments.input_text).is_file():
 TRANSCRIPT_FILE = Path(arguments.input_text).resolve()
 
 # Running Whisper if needed
+video_frames = None
 if arguments.whisper:
     log.info('Extended speech recognition mode selected, treating the input file as multimedia')
+    if arguments.video_frames:
+        log.info('Extended video speech recognition mode selected, rendering frames into thumbnails')
+        video_duration = 0
+        ffprobe_cli_list = ['ffprobe',
+                            '-i',
+                            str(TRANSCRIPT_FILE),
+                            '-show_entries',
+                            'format=duration',
+                            '-v',
+                            'quiet',
+                            '-of',
+                            'csv=p=0']
+        try:
+            ffprobe_handler = subprocess.run(ffprobe_cli_list, check=True, capture_output=True)
+            video_duration = float(ffprobe_handler.stdout)
+        except Exception as e:
+            log.error('Error processing video: {}'.format(str(e)))
+            exit(1)
+        if video_duration < 180:
+            log.warning('The estimated duration is less than 3 minutes, dropping video')
+        else:
+            hasher = hashlib.sha1()
+            hasher.update(str(TRANSCRIPT_FILE).encode('utf-8'))
+            transcript_hash = hasher.hexdigest()
+            images_dir = TRANSCRIPT_FILE.parent.joinpath('img')
+            images_dir.mkdir(parents=False, exist_ok=True)
+            frames_generation_cli_list = ['ffmpeg',
+                                          '-i',
+                                          str(TRANSCRIPT_FILE),
+                                          '-ss',
+                                          '00:01:00',
+                                          '-vf',
+                                          'fps=16/({} - 120):round=down'.format(str(video_duration)),
+                                          '-qscale:v',
+                                          '8',
+                                          '-fps_mode',
+                                          'vfr',
+                                          str(images_dir.joinpath(transcript_hash)) + '_full_%02d.jpg']
+            thumbs_generation_cli_list = ['ffmpeg',
+                                          '-i',
+                                          str(TRANSCRIPT_FILE),
+                                          '-ss',
+                                          '00:01:00',
+                                          '-vf',
+                                          'fps=16/({} - 120):round=down,scale=300:-1'.format(str(video_duration)),
+                                          '-qscale:v',
+                                          '8',
+                                          '-fps_mode',
+                                          'vfr',
+                                          str(images_dir.joinpath(transcript_hash)) + '_thumb_%02d.jpg']
+            try:
+                log.info('Generating images')
+                subprocess.run(frames_generation_cli_list, check=True)
+                log.info('Generating frames')
+                subprocess.run(thumbs_generation_cli_list, check=True)
+            except Exception as e:
+                log.error('Error processing video: {}'.format(str(e)))
+                exit(1)
+            video_frames = list()
+            for i in range(1, 17, 1):
+                video_frames.append( ('./img/{}_thumb_{:02d}.jpg'.format(transcript_hash, i), './img/{}_full_{:02d}.jpg'.format(transcript_hash, i)) )
+            log.info('Frame previews generated in {}'.format(str(images_dir)))
     log.info('Running audio processing')
     ffmpeg_output_filename = TRANSCRIPT_FILE.parent.joinpath(str(TRANSCRIPT_FILE.stem) + '.wav')
     whisper_output_filename = TRANSCRIPT_FILE.parent.joinpath(str(TRANSCRIPT_FILE.stem) + '.txt')
@@ -549,7 +622,14 @@ else:
                 log.error('HTTP error: status code {}'.format(response.status_code))
 
 log.info('Saving results')
-if arguments.join_text:
+if arguments.render_markdown:
+    output_filename = TRANSCRIPT_FILE.parent.joinpath(str(TRANSCRIPT_FILE.stem + '.html'))
+    log.info('Rendering HTML file {}'.format(output_filename))
+    render_markdown(str(TRANSCRIPT_FILE.stem),
+                    responses,
+                    output_filename,
+                    video_frames)
+elif arguments.join_text:
     output_filename = TRANSCRIPT_FILE.parent.joinpath(str(TRANSCRIPT_FILE.stem + '.md'))
     output_handle = output_filename.open('wt', encoding='utf-8')
     output_handle.write('# {}\n\n'.format(str(TRANSCRIPT_FILE.stem)))
@@ -567,9 +647,3 @@ else:
         output_handle.close()
         log.info('Output for the prompt {} is saved to {}'.format(partname, str(output_filename)))
 
-if arguments.render_markdown:
-    output_filename = TRANSCRIPT_FILE.parent.joinpath(str(TRANSCRIPT_FILE.stem + '.html'))
-    log.info('Rendering HTML file {}'.format(output_filename))
-    render_markdown(str(TRANSCRIPT_FILE.stem),
-                    responses,
-                    output_filename)
