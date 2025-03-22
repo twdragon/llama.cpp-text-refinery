@@ -359,6 +359,7 @@ video_frames = None
 if arguments.whisper:
     log.info('Extended speech recognition mode selected, treating the input file as multimedia')
     if arguments.video_frames:
+        from urllib.parse import quote
         log.info('Extended video speech recognition mode selected, rendering frames into thumbnails')
         video_duration = 0
         ffprobe_cli_list = ['ffprobe',
@@ -422,8 +423,9 @@ if arguments.whisper:
                 log.error('Error processing video: {}'.format(str(e)))
                 exit(1)
             video_frames = list()
+            video_frames_url = quote(images_dir.stem)
             for i in range(1, previews + 1, 1):
-                video_frames.append( ('./{}/thumb_{:02d}.jpg'.format(images_dir.stem, i), './{}/full_{:02d}.jpg'.format(images_dir.stem, i)) )
+                video_frames.append( ('./{}/thumb_{:02d}.jpg'.format(video_frames_url, i), './{}/full_{:02d}.jpg'.format(video_frames_url, i)) )
             log.info('Frame previews generated in {}'.format(str(images_dir)))
     log.info('Running audio processing')
     ffmpeg_output_filename = TRANSCRIPT_FILE.parent.joinpath(str(TRANSCRIPT_FILE.stem) + '.wav')
