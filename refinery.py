@@ -14,6 +14,7 @@ import time
 import yaml
 import argparse
 import hashlib
+import datetime
 
 
 def stop_http_llama_server(server_process, logger):
@@ -35,11 +36,112 @@ def remove_ffmpeg_artifacts(ffmpeg_output, whisper_output, logger, reuse_txt):
 
 
 def render_markdown(heading, responses, filename, integrate_thumbnails=None):
+    render_css = '''
+/* GitLab-like Markdown Styling by ChatGPT 4o */
+body {
+    font-family: "Times New Roman", Times, serif;
+    font-size: 14pt;
+    line-height: 1.6;
+    color: #333;
+    background-color: #fff;
+    margin: 20px;
+    padding: 20px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: bold;
+    color: #24292e;
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+}
+
+h1 { font-family: Arial, sans-serif; font-size: 24pt; border-bottom: 2px solid #eaecef; padding-bottom: 0.3em; }
+h2 { font-family: Arial, sans-serif; font-size: 22pt; border-bottom: 1px solid #eaecef; padding-bottom: 0.3em; }
+h3 { font-family: Arial, sans-serif; font-size: 20pt; }
+h4 { font-family: Arial, sans-serif; font-size: 18pt; }
+h5 { font-family: Arial, sans-serif; font-size: 16pt; }
+h6 { font-family: Arial, sans-serif; font-size: 14pt; color: #6a737d; }
+
+p {
+    margin-bottom: 1em;
+    font-size: 14pt;
+}
+
+ul, ol {
+    padding-left: 2em;
+    font-size: 14pt;
+}
+
+li {
+    margin-bottom: 0.3em;
+}
+
+pre {
+    background: #f6f8fa;
+    padding: 10px;
+    border-radius: 5px;
+    overflow-x: auto;
+    font-size: 11pt;
+}
+
+code {
+    font-family: monospace;
+    background: #f6f8fa;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-size: 12pt;
+}
+
+pre code {
+    display: block;
+    padding: 10px;
+}
+
+blockquote {
+    margin: 0;
+    padding: 0.5em 1em;
+    color: #6a737d;
+    border-left: 4px solid #dfe2e5;
+    background: #f8f9fa;
+    font-size: 14pt;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1em;
+    font-size: 14pt;
+}
+
+table, th, td {
+    border: 1px solid #dfe2e5;
+}
+
+th, td {
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background: #f6f8fa;
+    font-weight: bold;
+}
+
+a {
+    color: #0366d6;
+    text-decoration: none;
+    font-size: 14pt;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+    '''
     import markdown
     md_extensions = ['extra',
                      'toc',
                      'codehilite',
-                     'markdown_katex',
+                     'tables',
                      'abbr',
                      'sane_lists']
     markdown_doc = '# {}\n\n'.format(heading)
@@ -50,114 +152,17 @@ def render_markdown(heading, responses, filename, integrate_thumbnails=None):
     for partname, mdtext in responses.items():
         markdown_doc +='## {}\n\n'.format(partname)
         markdown_doc += mdtext
-        markdown_doc += '\n\n'
+        markdown_doc += '\n\n-----\n\n'
+    markdown_doc += 'Generated {} using [llama.cpp refinery](https://github.com/twdragon/llama.cpp-text-refinery) by twdragon\n\n'.format(str(datetime.datetime.now().isoformat()))
     html_doc = '''<!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=85%device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="application/xhtml+xml"/>
     <meta charset="UTF-8"/>
     <style>
-        /* GitLab-like Markdown Styling by ChatGPT 4o */
-        body {{
-            font-family: "Times New Roman", Times, serif;
-            font-size: 14pt;
-            line-height: 1.6;
-            color: #333;
-            background-color: #fff;
-            margin: 20px;
-            padding: 20px;
-        }}
-
-        h1, h2, h3, h4, h5, h6 {{
-            font-weight: bold;
-            color: #24292e;
-            margin-top: 1em;
-            margin-bottom: 0.5em;
-        }}
-
-        h1 {{ font-size: 24pt; border-bottom: 2px solid #eaecef; padding-bottom: 0.3em; }}
-        h2 {{ font-size: 22pt; border-bottom: 1px solid #eaecef; padding-bottom: 0.3em; }}
-        h3 {{ font-size: 20pt; }}
-        h4 {{ font-size: 18pt; }}
-        h5 {{ font-size: 16pt; }}
-        h6 {{ font-size: 14pt; color: #6a737d; }}
-
-        p {{
-            margin-bottom: 1em;
-            font-size: 14pt;
-        }}
-
-        ul, ol {{
-            padding-left: 2em;
-            font-size: 14pt;
-        }}
-
-        li {{
-            margin-bottom: 0.3em;
-        }}
-
-        pre {{
-            background: #f6f8fa;
-            padding: 10px;
-            border-radius: 5px;
-            overflow-x: auto;
-            font-size: 11pt;
-        }}
-
-        code {{
-            font-family: monospace;
-            background: #f6f8fa;
-            padding: 2px 4px;
-            border-radius: 3px;
-            font-size: 12pt;
-        }}
-
-        pre code {{
-            display: block;
-            padding: 10px;
-        }}
-
-        blockquote {{
-            margin: 0;
-            padding: 0.5em 1em;
-            color: #6a737d;
-            border-left: 4px solid #dfe2e5;
-            background: #f8f9fa;
-            font-size: 14pt;
-        }}
-
-        table {{
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 1em;
-            font-size: 14pt;
-        }}
-
-        table, th, td {{
-            border: 1px solid #dfe2e5;
-        }}
-
-        th, td {{
-            padding: 8px;
-            text-align: left;
-        }}
-
-        th {{
-            background: #f6f8fa;
-            font-weight: bold;
-        }}
-
-        a {{
-            color: #0366d6;
-            text-decoration: none;
-            font-size: 14pt;
-        }}
-
-        a:hover {{
-            text-decoration: underline;
-        }}
+        {stylesheet}
     </style>
     <title>{doctitle}</title>
 </head>
@@ -166,10 +171,39 @@ def render_markdown(heading, responses, filename, integrate_thumbnails=None):
 </body>
 </html>
 '''
-    markdown_doc = re.sub(r'\n{3,}', '\n\n', markdown_doc.strip())
-    list_pattern = re.compile(r'(\s*[-*+]\s+|\s*\d+\.\s+)(.*)\n\n')
-    markdown_doc = re.sub(list_pattern, r'\1\2\n', markdown_doc)
-    html_doc = html_doc.format(doctitle=heading, docrender=markdown.markdown(markdown_doc, extensions=md_extensions))
+    # Markdown sanitizer
+    multiline_pattern = re.compile(r'\n{3,}')
+    list_pattern = re.compile(r'(^|\n+)(\s*)(([-*+])|(\d+\.))(\s+)(.*)$', re.MULTILINE)
+    prev_level = 0
+    multiplicity = 0
+    prev_state = 0 # 0 - init, 1 - bulleted, 2 - enumeration
+    def fix_indentation(match):
+        nonlocal multiplicity, prev_level, prev_state
+        list_element = str()
+        current_state = 1 if match.group(4) is not None else 2
+        current_level = 0
+        if len(match.group(2)) > 0:
+            if prev_level == 0:
+                current_level = 1
+                multiplicity = len(match.group(2))
+            else:
+                current_level = len(match.group(2)) // multiplicity
+                if (len(match.group(2)) % multiplicity) != 0:
+                    current_level += 1
+        list_element += match.group(1) if prev_state != 0 and prev_state != current_state else '\n'
+        list_element += ' ' * (current_level * 4)
+        list_element += '-' if match.group(4) is not None else str()
+        list_element += match.group(5) if match.group(5) is not None else str()
+        list_element += match.group(6)
+        list_element += match.group(7)
+        prev_level = current_level
+        prev_state = current_state
+        return list_element
+    # Executing sanitizer
+    markdown_doc = re.sub(multiline_pattern, '\n\n', markdown_doc.strip())
+    markdown_doc = re.sub(list_pattern, fix_indentation, markdown_doc)
+    # Rendering
+    html_doc = html_doc.format(stylesheet=render_css, doctitle=heading, docrender=markdown.markdown(markdown_doc, extensions=md_extensions))
     html_handler = filename.open('wt', encoding='utf-8')
     html_handler.write(html_doc)
     html_handler.close()
@@ -286,14 +320,14 @@ argument_parser.add_argument('-rm', '--render-markdown',
                              help='Render Markdown to HTML (requires Python Markdown extension package installed)')
 argument_parser.add_argument('--video-frames', 
                              action='store_true', 
-                             help='Tries to extract 16 preview frames from the input video when rendering Markdown to HTML')
+                             help='Tries to extract preview frames from the input video when rendering Markdown to HTML')
 argument_parser.add_argument('--video-frames-cnt', 
                              action='store', 
                              default=None,
                              const=None,
                              nargs='?',
                              type=int,
-                             help='Number of the preview frames to generate [1..99]')
+                             help='Number of the preview frames to generate [2..99]')
 
 # Argument preservation chain
 arguments = argument_parser.parse_args()
@@ -348,7 +382,7 @@ if arguments.whisper:
             hasher = hashlib.sha1()
             hasher.update(str(TRANSCRIPT_FILE).encode('utf-8'))
             transcript_hash = hasher.hexdigest()
-            images_dir = TRANSCRIPT_FILE.parent.joinpath('img')
+            images_dir = TRANSCRIPT_FILE.parent.joinpath(TRANSCRIPT_FILE.stem)
             images_dir.mkdir(parents=False, exist_ok=True)
             previews = 16
             if arguments.video_frames_cnt < 2 or arguments.video_frames_cnt > 99:
@@ -366,7 +400,7 @@ if arguments.whisper:
                                           '8',
                                           '-fps_mode',
                                           'vfr',
-                                          str(images_dir.joinpath(transcript_hash)) + '_full_%02d.jpg']
+                                          str(images_dir.joinpath('full_%02d.jpg'))]
             thumbs_generation_cli_list = ['ffmpeg',
                                           '-i',
                                           str(TRANSCRIPT_FILE),
@@ -378,7 +412,7 @@ if arguments.whisper:
                                           '8',
                                           '-fps_mode',
                                           'vfr',
-                                          str(images_dir.joinpath(transcript_hash)) + '_thumb_%02d.jpg']
+                                          str(images_dir.joinpath('thumb_%02d.jpg'))]
             try:
                 log.info('Generating images')
                 subprocess.run(frames_generation_cli_list, check=True)
@@ -389,7 +423,7 @@ if arguments.whisper:
                 exit(1)
             video_frames = list()
             for i in range(1, previews + 1, 1):
-                video_frames.append( ('./img/{}_thumb_{:02d}.jpg'.format(transcript_hash, i), './img/{}_full_{:02d}.jpg'.format(transcript_hash, i)) )
+                video_frames.append( ('./{}/thumb_{:02d}.jpg'.format(images_dir.stem, i), './{}/full_{:02d}.jpg'.format(images_dir.stem, i)) )
             log.info('Frame previews generated in {}'.format(str(images_dir)))
     log.info('Running audio processing')
     ffmpeg_output_filename = TRANSCRIPT_FILE.parent.joinpath(str(TRANSCRIPT_FILE.stem) + '.wav')
