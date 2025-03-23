@@ -188,8 +188,8 @@ a:hover {
                 multiplicity = len(match.group(2))
             else:
                 current_level = len(match.group(2)) // multiplicity
-                if (len(match.group(2)) % multiplicity) != 0:
-                    current_level += 1
+                # if (len(match.group(2)) % multiplicity) != 0:
+                #    current_level += 1
         list_element += match.group(1) if prev_state != 0 and prev_state != current_state else '\n'
         list_element += ' ' * (current_level * 4)
         list_element += '-' if match.group(4) is not None else str()
@@ -218,12 +218,19 @@ DEFAULT_CONFIG = SCRIPT_DIRECTORY.joinpath('config.yml')
 argument_parser = argparse.ArgumentParser(description='llama.cpp configurable text refinery by twdragon')
 argument_parser.add_argument('input_text',
                              action='store', 
-                             help='File containing input text for refining',
+                             help='File containing input text/multimedia for refining',
                              nargs='?',
                              type=str)
 argument_parser.add_argument('-es', '--external-server', 
                              action='store_false', 
                              help='Use external llama.cpp server instead of running our own')
+argument_parser.add_argument('-o', '--output-dir', 
+                             action='store', 
+                             default=None,
+                             const=None,
+                             nargs='?',
+                             type=str,
+                             help='Output directory to store results [input file directory]')
 argument_parser.add_argument('-c', '--config', 
                              action='store', 
                              default=str(DEFAULT_CONFIG),
@@ -328,10 +335,18 @@ argument_parser.add_argument('--video-frames-cnt',
                              nargs='?',
                              type=int,
                              help='Number of the preview frames to generate [2..99]')
+argument_parser.add_argument('--video-frames-width', 
+                             action='store', 
+                             default=300,
+                             const=300,
+                             nargs='?',
+                             type=int,
+                             help='Preview frame width')
 
 # Argument preservation chain
 arguments = argument_parser.parse_args()
 keep_text = arguments.whisper_keep_txt
+
 
 # Configuration loader
 CONFIG_FILE = Path(arguments.config)
@@ -353,6 +368,15 @@ if not Path(arguments.input_text).is_file():
     exit(1)
 
 TRANSCRIPT_FILE = Path(arguments.input_text).resolve()
+output_dir = TRANSCRIPT_FILE.parent
+if arguments.output_dir is not None:
+    output_dir = Path(arguments.output_dir).resolve()
+    if not output_dir.is_dir():
+        try:
+            output_dir.mkdir(parents=False, exist_ok=True)
+        except Exception as e:
+            log.error('Cannot create directory {}: {}'.format(str(output_dir), str(e)))
+            exit(1)
 
 # Running Whisper if needed
 video_frames = None
@@ -360,6 +384,9 @@ if arguments.whisper:
     log.info('Extended speech recognition mode selected, treating the input file as multimedia')
     if arguments.video_frames:
         from urllib.parse import quote
+        from PIL import Image
+        if not hasattr(Image, 'Resampling'):  # Pillow<9.0
+            Image.Resampling = PIL.Image
         log.info('Extended video speech recognition mode selected, rendering frames into thumbnails')
         video_duration = 0
         ffprobe_cli_list = ['ffprobe',
@@ -383,13 +410,18 @@ if arguments.whisper:
             hasher = hashlib.sha1()
             hasher.update(str(TRANSCRIPT_FILE).encode('utf-8'))
             transcript_hash = hasher.hexdigest()
-            images_dir = TRANSCRIPT_FILE.parent.joinpath(TRANSCRIPT_FILE.stem)
+            images_dir = output_dir.joinpath(TRANSCRIPT_FILE.stem)
             images_dir.mkdir(parents=False, exist_ok=True)
             previews = 16
             if arguments.video_frames_cnt < 2 or arguments.video_frames_cnt > 99:
                 log.warning('Insufficient number of preview frames. Please specify a number between 2 and 99')
             else:
                 previews = arguments.video_frames_cnt
+            thumbnail_width = 300
+            if arguments.video_frames_width < 100 or arguments.video_frames_width > 1000:
+                log.warning('Insufficient preview frame width. Please specify a number between 100 and 1000')
+            else:
+                thumbnail_width = arguments.video_frames_width
             frames_generation_cli_list = ['ffmpeg',
                                           '-i',
                                           str(TRANSCRIPT_FILE),
@@ -402,34 +434,29 @@ if arguments.whisper:
                                           '-fps_mode',
                                           'vfr',
                                           str(images_dir.joinpath('full_%02d.jpg'))]
-            thumbs_generation_cli_list = ['ffmpeg',
-                                          '-i',
-                                          str(TRANSCRIPT_FILE),
-                                          '-ss',
-                                          '00:00:10',
-                                          '-vf',
-                                          'fps={}/({} - 20):round=down,scale=300:-1'.format(previews, str(video_duration)),
-                                          '-qscale:v',
-                                          '8',
-                                          '-fps_mode',
-                                          'vfr',
-                                          str(images_dir.joinpath('thumb_%02d.jpg'))]
             try:
                 log.info('Generating images')
                 subprocess.run(frames_generation_cli_list, check=True)
-                log.info('Generating frames')
-                subprocess.run(thumbs_generation_cli_list, check=True)
             except Exception as e:
                 log.error('Error processing video: {}'.format(str(e)))
                 exit(1)
+            # Generating thumbnails
+            preview_images = images_dir.glob('*.jpg')
+            for preview_image in preview_images:
+                image = Image.open(preview_image)
+                aspect_ratio = float(thumbnail_width) / float(image.size[0])
+                thumbnail_height = ceil(aspect_ratio * image.size[1])
+                image = image.resize((thumbnail_width, thumbnail_height), Image.Resampling.BILINEAR)
+                thumbnail_filename = preview_image.parent.joinpath( str(preview_image.name).replace('full', 'thumb') ).resolve()
+                image.save(str(thumbnail_filename), format='JPEG', subsampling=0, quality=75)
             video_frames = list()
             video_frames_url = quote(images_dir.stem)
             for i in range(1, previews + 1, 1):
                 video_frames.append( ('./{}/thumb_{:02d}.jpg'.format(video_frames_url, i), './{}/full_{:02d}.jpg'.format(video_frames_url, i)) )
             log.info('Frame previews generated in {}'.format(str(images_dir)))
     log.info('Running audio processing')
-    ffmpeg_output_filename = TRANSCRIPT_FILE.parent.joinpath(str(TRANSCRIPT_FILE.stem) + '.wav')
-    whisper_output_filename = TRANSCRIPT_FILE.parent.joinpath(str(TRANSCRIPT_FILE.stem) + '.txt')
+    ffmpeg_output_filename = output_dir.joinpath(str(TRANSCRIPT_FILE.stem) + '.wav')
+    whisper_output_filename = output_dir.joinpath(str(TRANSCRIPT_FILE.stem) + '.txt')
     atexit.register(remove_ffmpeg_artifacts, ffmpeg_output_filename, whisper_output_filename, log, keep_text)
     ffmpeg_cli_list = ['ffmpeg',
                        '-i',
@@ -472,7 +499,7 @@ if arguments.whisper:
                         '-f',
                         str(ffmpeg_output_filename),
                         '-of',
-                        TRANSCRIPT_FILE.parent.joinpath(str(TRANSCRIPT_FILE.stem))]
+                        output_dir.joinpath(str(TRANSCRIPT_FILE.stem))]
     if arguments.whisper_translate:
         whisper_cli_list.append('-tr')
     try:
@@ -679,14 +706,14 @@ else:
 
 log.info('Saving results')
 if arguments.render_markdown:
-    output_filename = TRANSCRIPT_FILE.parent.joinpath(str(TRANSCRIPT_FILE.stem + '.html'))
+    output_filename = output_dir.joinpath(str(TRANSCRIPT_FILE.stem + '.html'))
     log.info('Rendering HTML file {}'.format(output_filename))
     render_markdown(str(TRANSCRIPT_FILE.stem),
                     responses,
                     output_filename,
                     video_frames)
 elif arguments.join_text:
-    output_filename = TRANSCRIPT_FILE.parent.joinpath(str(TRANSCRIPT_FILE.stem + '.md'))
+    output_filename = output_dir.joinpath(str(TRANSCRIPT_FILE.stem + '.md'))
     output_handle = output_filename.open('wt', encoding='utf-8')
     output_handle.write('# {}\n\n'.format(str(TRANSCRIPT_FILE.stem)))
     for partname, mdtext in responses.items():
@@ -697,7 +724,7 @@ elif arguments.join_text:
     log.info('Full output saved to {}'.format(str(output_filename)))
 else:
     for partname, mdtext in responses.items():
-        output_filename = TRANSCRIPT_FILE.parent.joinpath(str(TRANSCRIPT_FILE.stem + '.' + re.sub(alphanumeric_pattern, '_', partname.lower()) + '.md'))
+        output_filename = output_dir.joinpath(str(TRANSCRIPT_FILE.stem + '.' + re.sub(alphanumeric_pattern, '_', partname.lower()) + '.md'))
         output_handle = output_filename.open('wt', encoding='utf-8')
         output_handle.write(mdtext)
         output_handle.close()

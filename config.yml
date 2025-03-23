@@ -86,7 +86,7 @@ presets:
       prompts: 
         - name: "Summary"
           text_before: |+
-            System Prompt: Below is a fragment of a long meeting transcript. Please retell this part of the discussion in very detailed, precise and comprehensive manner, without making assumptions or adding information. Do not use headings or footers, and do not mention anything about how the transcript was processed. Ensure the retelling flows naturally, avoiding repetitive sentence structures or predictable openings such as "The discussion revolves around...". Format your retelling as Markdown paragraphs so it integrates seamlessly into the final article.
+            System Prompt: Below is a fragment of a long meeting transcript. Please retell this part of the discussion in very detailed, precise and comprehensive manner, without making assumptions or adding information. Do not use headings or footers, and do not mention anything about how the transcript was processed. Ensure the retelling flows naturally, avoiding repetitive sentence structures or boring openings such as "The discussion revolves around...". Format your retelling as Markdown paragraphs so it integrates seamlessly into the final article.
             
             Transcript fragment:
             
@@ -154,7 +154,7 @@ presets:
       prompts: 
         - name: "Summary"
           text_before: |+
-            System Prompt: Below is a fragment of a long meeting transcript. Please generate a detailed and comprehensive summary of this part of the discussion. Capture key ideas, arguments, numerical data, and supporting details without making assumptions or adding information. Do not use headings or footers, and do not mention anything about how the transcript was processed. Ensure the summary flows naturally, avoiding repetitive sentence structures or predictable openings such as "The discussion revolves around...". Instead, use varied sentence structures and transitions to create an engaging and seamless narrative. Format the summary as a single Markdown paragraph so it integrates seamlessly into the final summary.
+            System Prompt: Below is a fragment of a long meeting transcript. Please generate a detailed and comprehensive summary of this part of the discussion. Capture key ideas, arguments, numerical data, and supporting details without making assumptions or adding information. Do not use headings or footers, and do not mention anything about how the transcript was processed. Ensure the summary flows naturally, avoiding repetitive sentence structures or boring openings such as "The discussion revolves around...". Instead, use varied sentence structures and transitions to create an engaging and seamless narrative. Format the summary as a single Markdown paragraph so it integrates seamlessly into the final summary.
             
             Transcript fragment:
             
@@ -168,13 +168,37 @@ presets:
       prompts: 
         - name: "Retelling"
           text_before: |+
-            System Prompt: Below is a fragment of a long meeting transcript. Please retell this part of the discussion in very detailed, precise and comprehensive manner, without making assumptions or adding information. Do not use headings or footers, and do not mention anything about how the transcript was processed. Ensure the retelling flows naturally, avoiding repetitive sentence structures or predictable openings such as "The discussion revolves around...". Format your retelling as Markdown paragraphs so it integrates seamlessly into the final article.
+            System Prompt: Below is a fragment of a long meeting transcript. Please retell this part of the discussion in very detailed, precise and comprehensive manner, without making assumptions or adding information. Do not use headings or footers, and do not mention anything about how the transcript was processed. Ensure the retelling flows naturally, avoiding repetitive sentence structures or boring openings such as "The discussion revolves around...". Format your retelling as Markdown paragraphs so it integrates seamlessly into the final article.
             
             Transcript fragment:
             
           text_after: |+
             
             Response: 
+            
+# =============================================================================
+    - name: "Conference keynote - detailed summary"
+      cli_alias: "conference-keynote-detailed-summary"
+      prompts: 
+        - name: "Summary"
+          text_before: |+
+            System Prompt: Below is a fragment of a long conference keynote transcript. Please retell this part of the keynote in very detailed, precise and comprehensive manner, without making assumptions or adding information. Do not use headings or footers, and do not mention anything about how the transcript was processed. Focus on the key ideas and intents. Ensure the retelling flows naturally, avoiding repetitive sentence structures or boring openings like "The speaker discuss...". Format your retelling as 2-4 Markdown paragraphs so it integrates seamlessly into the final article.
+            
+            Transcript fragment:
+            
+          text_after: |+
+            
+            Response: 
+            
+        - name: "Key Insights and Ideation"
+          text_before: |+
+            System Prompt: Below is a fragment of a long conference keynote transcript. Please generate a detailed list of 3-6 main key insights and/or ideation points for this part of the speech, if there are any. Do not make any assumptions or add anything. Do not use any headings at the beginning or footers by the end of the list of the key insights. Prepare the list for being seamlessly integrated in the bigger final list of key insights. Format the list as a Markdown bulleted list.
+            
+            Transcript fragment:
+            
+          text_after: |+
+            
+            Response:
             
 # =============================================================================
 
