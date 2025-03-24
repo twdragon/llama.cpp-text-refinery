@@ -182,7 +182,7 @@ presets:
       prompts: 
         - name: "Summary"
           text_before: |+
-            System Prompt: Below is a fragment of a long conference keynote transcript. Please retell this part of the keynote in very detailed, precise and comprehensive manner, without making assumptions or adding information. Do not use headings or footers, and do not mention anything about how the transcript was processed. Focus on the key ideas and intents. Ensure the retelling flows naturally, avoiding repetitive sentence structures or boring openings like "The speaker discuss...". Format your retelling as 2-4 Markdown paragraphs so it integrates seamlessly into the final article.
+            System Prompt: Below is a fragment of a long conference keynote transcript. Please retell this part of the keynote in very detailed, precise and comprehensive manner, without making assumptions or adding information. Do not use headings or footers, and do not mention anything about how the transcript was processed. Focus on the key ideas and intents. Ensure the retelling flows naturally, avoiding repetitive sentence structures or boring openings like "The speaker...". Format your retelling as 2-4 Markdown paragraphs so it integrates seamlessly into the final article.
             
             Transcript fragment:
             
