@@ -3,7 +3,8 @@ server_executable:
     Windows: "C:\\Users\\andrey.vukolov\\src\\llama.cpp\\llama-server.exe"
     Linux: "/home/twdragon/src/llama.cpp/build/bin/llama-server"
 llm_dir:
-    Windows: "C:\\Users\\andrey.vukolov\\src\\llama.cpp\\models"
+    Windows: "F:\\twdragon\\src\\llama.cpp\\models"
+    # Windows: "C:\\Users\\andrey.vukolov\\src\\llama.cpp\\models"
     Linux: "/home/twdragon/src/llama.cpp/models"
 # llm_filename: "Ministral-8B-Instruct-2410-Q4_K_L.gguf"
 llm_filename: "Ministral-8B-Instruct-2410.Q5_K_M.gguf"
@@ -208,8 +209,8 @@ whisper:
         Windows: "C:\\Users\\andrey.vukolov\\src\\whisper.cpp\\whisper-cli.exe"
         Linux: "/home/twdragon/src/whisper.cpp/build/bin/whisper-cli"
     model_dir:
-        Windows: "C:\\Users\\andrey.vukolov\\src\\whisper.cpp\\models\\large"
-        # Windows: "F:\\twdragon\\src\\whisper.cpp\\models\\large"
+        # Windows: "C:\\Users\\andrey.vukolov\\src\\whisper.cpp\\models\\large"
+        Windows: "F:\\twdragon\\src\\whisper.cpp\\models\\large"
         # Linux: "/home/twdragon/src/whisper.cpp/models/medium"
         Linux: "/home/twdragon/src/whisper.cpp/models/large"
     model_filename: "ggml-large-v3.bin"

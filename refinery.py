@@ -543,7 +543,7 @@ if arguments.external_server:
         server_cli_list.append('--gpu-layers')
         server_cli_list.append(str(arguments.gpu_layers))
     server_process = subprocess.Popen(server_cli_list)
-    time.sleep(2)
+    time.sleep(5)
     atexit.register(stop_http_llama_server, server_process, log)
 else:
     log.info('User setting: EXTERNAL_SERVER, not running llama.cpp server explicitly')
