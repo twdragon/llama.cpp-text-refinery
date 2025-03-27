@@ -174,6 +174,7 @@ a:hover {
     # Markdown sanitizer
     multiline_pattern = re.compile(r'\n{3,}')
     list_pattern = re.compile(r'(^|\n+)(\s*)(([-*+])|(\d+\.))(\s+)(.*)$', re.MULTILINE)
+    list_start_pattern = re.compile(r'(^\w+)(.*)(\n)(([-*+])|(\d+\.))(\s+)', re.MULTILINE)
     prev_level = 0
     multiplicity = 0
     prev_state = 0 # 0 - init, 1 - bulleted, 2 - enumeration
@@ -199,9 +200,13 @@ a:hover {
         prev_level = current_level
         prev_state = current_state
         return list_element
+    def fix_list_intro(match):
+        string_element = match.group(1) + match.group(2) + '\n\n' + match.group(4) + match.group(7)
+        return string_element
     # Executing sanitizer
     markdown_doc = re.sub(multiline_pattern, '\n\n', markdown_doc.strip())
     markdown_doc = re.sub(list_pattern, fix_indentation, markdown_doc)
+    markdown_doc = re.sub(list_start_pattern, fix_list_intro, markdown_doc)
     # Rendering
     html_doc = html_doc.format(stylesheet=render_css, doctitle=heading, docrender=markdown.markdown(markdown_doc, extensions=md_extensions))
     html_handler = filename.open('wt', encoding='utf-8')
