@@ -391,7 +391,7 @@ if arguments.whisper:
         from urllib.parse import quote
         from PIL import Image
         if not hasattr(Image, 'Resampling'):  # Pillow<9.0
-            Image.Resampling = PIL.Image
+            Image.Resampling = Image
         log.info('Extended video speech recognition mode selected, rendering frames into thumbnails')
         video_duration = 0
         ffprobe_cli_list = ['ffprobe',
