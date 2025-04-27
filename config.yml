@@ -3,8 +3,8 @@ server_executable:
     Windows: "C:\\Users\\andrey.vukolov\\src\\llama.cpp\\llama-server.exe"
     Linux: "/home/twdragon/src/llama.cpp/build/bin/llama-server"
 llm_dir:
-    Windows: "F:\\twdragon\\src\\llama.cpp\\models"
-    # Windows: "C:\\Users\\andrey.vukolov\\src\\llama.cpp\\models"
+    # Windows: "F:\\twdragon\\src\\llama.cpp\\models"
+    Windows: "C:\\Users\\andrey.vukolov\\src\\llama.cpp\\models"
     Linux: "/home/twdragon/src/llama.cpp/models"
 # llm_filename: "Ministral-8B-Instruct-2410-Q4_K_L.gguf"
 llm_filename: "Ministral-8B-Instruct-2410.Q5_K_M.gguf"
@@ -53,7 +53,7 @@ presets:
       prompts: 
         - name: "Summary"
           text_before: |+
-            System Prompt: Below is a fragment of a long meeting transcript. Please generate a detailed and comprehensive summary of this part of the discussion. Capture key ideas, arguments, numerical data, and supporting details without making assumptions or adding information. Do not use headings or footers, and do not mention anything about how the transcript was processed. Ensure the summary flows naturally, avoiding repetitive sentence structures or predictable openings such as "The discussion revolves around...". Instead, use varied sentence structures and transitions to create an engaging and seamless narrative. Format the summary as a single Markdown paragraph so it integrates seamlessly into the final summary.
+            System Prompt: Below is a fragment of a long meeting transcript. Please generate a detailed and comprehensive summary of this part of the discussion. Capture key ideas, arguments, numerical data, and supporting details without making assumptions or adding information. Do not use introductory sentences, headings or footers, and do not mention anything about how the transcript was processed. Ensure the summary flows naturally, avoiding repetitive sentence structures or predictable openings such as "The discussion revolves around...". Use varied sentence structures and transitions to create an engaging and seamless narrative. Format the summary as a single Markdown paragraph so it integrates seamlessly into the final summary.
             
             Transcript fragment:
             
@@ -63,7 +63,7 @@ presets:
             
         - name: "Key Insights"
           text_before: |+
-            System Prompt: Below is the fragment of the long meeting transcript. Please generate a list of 2-3 main key insights for this part of the discussion, if there are any. Do not make any assumptions or add anything. Do not use any headings at the beginning or footers by the end of the list of the key insights. Prepare the list for being seamlessly integrated in the bigger final list of key insights. Format the list as a Markdown bulleted list.
+            System Prompt: Below is the fragment of the long meeting transcript. Please generate a list of 2-3 main key insights for this part of the discussion, if there are any. Do not make any assumptions or add anything. Do not use any introductory sentences, headings at the beginning or footers by the end of the list of the key insights. Prepare the list for being seamlessly integrated in the bigger final list of key insights. Format the list as a Markdown bulleted list.
             
             Transcript fragment:
             
@@ -73,7 +73,7 @@ presets:
             
         - name: "Outline"
           text_before: |+
-            System Prompt: Below is the fragment of the long meeting transcript. Please generate sequential and detailed outline of this part of the discussion. Pay attention to the key ideas, arguments, numerical data and supporting details, but without making assumptions or adding anything. Do not use any headings at the beginning or footers by the end of the outline. Prepare the outline for being seamlessly integrated in the bigger final outline. Format the outline as Markdown bulleted list.
+            System Prompt: Below is the fragment of the long meeting transcript. Please generate sequential and detailed outline of this part of the discussion. Pay attention to the key ideas, arguments, numerical data and supporting details, but without making assumptions or adding anything. Do not use any introductory sentences, headings at the beginning or footers by the end of the outline. Prepare the outline for being seamlessly integrated in the bigger final outline. Format the outline as Markdown bulleted list.
             
             Transcript fragment:
             
@@ -87,7 +87,7 @@ presets:
       prompts: 
         - name: "Summary"
           text_before: |+
-            System Prompt: Below is a fragment of a long meeting transcript. Please retell this part of the discussion in very detailed, precise and comprehensive manner, without making assumptions or adding information. Do not use headings or footers, and do not mention anything about how the transcript was processed. Ensure the retelling flows naturally, avoiding repetitive sentence structures or boring openings such as "The discussion revolves around...". Format your retelling as Markdown paragraphs so it integrates seamlessly into the final article.
+            System Prompt: Below is a fragment of a long meeting transcript. Please retell this part of the discussion in very detailed, precise and comprehensive manner, without making assumptions or adding information. Do not use introductory sentences, headings or footers, and do not mention anything about how the transcript was processed. Ensure the retelling flows naturally, avoiding repetitive sentence structures or boring openings such as "The discussion revolves around...". Format your retelling as Markdown paragraphs so it integrates seamlessly into the final article.
             
             Transcript fragment:
             
@@ -97,7 +97,7 @@ presets:
             
         - name: "Key Insights"
           text_before: |+
-            System Prompt: Below is the fragment of the long meeting transcript. Please generate a detailed list of 2-3 main key insights for this part of the discussion, if there are any. Do not make any assumptions or add anything. Do not use any headings at the beginning or footers by the end of the list of the key insights. Prepare the list for being seamlessly integrated in the bigger final list of key insights. Format the list as a Markdown bulleted list.
+            System Prompt: Below is the fragment of the long meeting transcript. Please generate a detailed list of 2-3 main key insights for this part of the discussion, if there are any. Do not make any assumptions or add anything. Do not use any introductory sentences, headings at the beginning or footers by the end of the list of the key insights. Prepare the list for being seamlessly integrated in the bigger final list of key insights. Format the list as a Markdown bulleted list.
             
             Transcript fragment:
             
@@ -107,7 +107,7 @@ presets:
             
         - name: "Outline"
           text_before: |+
-            System Prompt: Below is the fragment of the long meeting transcript. Please generate sequential and detailed outline of this part of the discussion. Pay attention to the key ideas, arguments, numerical data and supporting details, but without making assumptions or adding anything. Do not use any headings at the beginning or footers by the end of the outline. Prepare the outline for being seamlessly integrated in the bigger final outline. Format the outline as Markdown bulleted list.
+            System Prompt: Below is the fragment of the long meeting transcript. Please generate sequential and detailed outline of this part of the discussion. Pay attention to the key ideas, arguments, numerical data and supporting details, but without making assumptions or adding anything. Do not use any introductory sentences, headings at the beginning or footers by the end of the outline. Prepare the outline for being seamlessly integrated in the bigger final outline. Format the outline as Markdown bulleted list.
             
             Transcript fragment:
             
@@ -155,7 +155,7 @@ presets:
       prompts: 
         - name: "Summary"
           text_before: |+
-            System Prompt: Below is a fragment of a long meeting transcript. Please generate a detailed and comprehensive summary of this part of the discussion. Capture key ideas, arguments, numerical data, and supporting details without making assumptions or adding information. Do not use headings or footers, and do not mention anything about how the transcript was processed. Ensure the summary flows naturally, avoiding repetitive sentence structures or boring openings such as "The discussion revolves around...". Instead, use varied sentence structures and transitions to create an engaging and seamless narrative. Format the summary as a single Markdown paragraph so it integrates seamlessly into the final summary.
+            System Prompt: Below is a fragment of a long meeting transcript. Please generate a detailed and comprehensive summary of this part of the discussion. Capture key ideas, arguments, numerical data, and supporting details without making assumptions or adding information. Do not use introductory sentences, headings or footers, and do not mention anything about how the transcript was processed. Ensure the summary flows naturally, avoiding repetitive sentence structures or boring openings such as "The discussion revolves around...". Instead, use varied sentence structures and transitions to create an engaging and seamless narrative. Format the summary as a single Markdown paragraph so it integrates seamlessly into the final summary.
             
             Transcript fragment:
             
@@ -169,7 +169,7 @@ presets:
       prompts: 
         - name: "Retelling"
           text_before: |+
-            System Prompt: Below is a fragment of a long meeting transcript. Please retell this part of the discussion in very detailed, precise and comprehensive manner, without making assumptions or adding information. Do not use headings or footers, and do not mention anything about how the transcript was processed. Ensure the retelling flows naturally, avoiding repetitive sentence structures or boring openings such as "The discussion revolves around...". Format your retelling as Markdown paragraphs so it integrates seamlessly into the final article.
+            System Prompt: Below is a fragment of a long meeting transcript. Please retell this part of the discussion in very detailed, precise and comprehensive manner, without making assumptions or adding information. Do not use introductory sentences, headings or footers, and do not mention anything about how the transcript was processed. Ensure the retelling flows naturally, avoiding repetitive sentence structures or boring openings such as "The discussion revolves around...". Format your retelling as Markdown paragraphs so it integrates seamlessly into the final article.
             
             Transcript fragment:
             
@@ -183,7 +183,7 @@ presets:
       prompts: 
         - name: "Summary"
           text_before: |+
-            System Prompt: Below is a fragment of a long conference keynote transcript. Please retell this part of the keynote in very detailed, precise and comprehensive manner, without making assumptions or adding information. Do not use headings or footers, and do not mention anything about how the transcript was processed. Focus on the key ideas and intents. Ensure the retelling flows naturally, avoiding repetitive sentence structures or boring openings like "The speaker...". Format your retelling as 2-4 Markdown paragraphs so it integrates seamlessly into the final article.
+            System Prompt: Below is a fragment of a long conference keynote transcript. Please retell this part of the keynote in very detailed, precise and comprehensive manner, without making assumptions or adding information. Do not use introductory sentences, headings or footers, and do not mention anything about how the transcript was processed. Focus on the key ideas and intents. Ensure the retelling flows naturally, avoiding repetitive sentence structures or boring openings like "The speaker...". Format your retelling as 2-4 Markdown paragraphs so it integrates seamlessly into the final article.
             
             Transcript fragment:
             
@@ -202,6 +202,54 @@ presets:
             Response:
             
 # =============================================================================
+    - name: "Meeting retelling only [RUS]"
+      cli_alias: "ru-scientific-blog-retelling"
+      prompts: 
+        - name: "Краткое изложение"
+          text_before: |+
+            System Prompt: Ниже приведен фрагмент длинной расшифровки научного блог-видео на русском языке. Подготовь очень детальное, точное и исчерпывающее изложение этой части расшифровки, не делая предположений и не добавляя никакой новой информации. Не используй вступительных предложений, заголовков или концовок, не упоминай ничего о том, как текст расшифровки был обработан. Проследи за тем, чтобы структура изложения была естественной, избегай повторяющихся структур предложений или скучных вступлений, таких как «Обсуждаются следующие события...». Оформи свое изложение в виде абзацев Markdown, чтобы оно легко вписалось в финальный объединенный текст.
+            
+            Transcript fragment:
+            
+          text_after: |+
+            
+            Response: 
+            
+# =============================================================================
+    - name: "Scientific meeting - detailed summary [RUS]"
+      cli_alias: "ru-scientific-meeting-detailed-summary"
+      prompts: 
+        - name: "Изложение"
+          text_before: |+
+            System Prompt: Ниже приведен фрагмент длинной расшифровки научной видеоконференции на русском языке. Подготовь очень детальное, точное и исчерпывающее изложение этой части расшифровки, не делая предположений и не добавляя никакой новой информации. Не используй вступительных предложений, заголовков или концовок, не упоминай ничего о том, как текст расшифровки был обработан. Проследи за тем, чтобы структура изложения была естественной, избегай повторяющихся структур предложений или скучных вступлений, таких как «Обсуждаются следующие события...». Оформи свое изложение в виде абзацев Markdown, чтобы оно легко вписалось в финальный объединенный текст.
+            
+            Transcript fragment:
+            
+          text_after: |+
+            
+            Response: 
+            
+        - name: "Ключевые точки"
+          text_before: |+
+            System Prompt: Ниже приведен фрагмент длинной расшифровки научной видеоконференции на русском языке. Составь подробный список из 2-3 ключевых точек для этой части обсуждения, если таковые имеются. Не делай никаких предположений и ничего не добавляй никакой новой информации. Не используй никаких вступительных предложений, заголовков в начале или концовок в конце списка ключевых точек. Подготовь список для того, чтобы он легко вписался в более крупный окончательный список ключевых точек для всей видеоконференции. Оформи свой список в виде ненумерованного списка Markdown.
+            
+            Transcript fragment:
+            
+          text_after: |+
+            
+            Response:
+            
+        - name: "Обзор"
+          text_before: |+
+            System Prompt: Ниже приведен фрагмент длинной расшифровки научной видеоконференции на русском языке. Составь последовательный и подробный план этой части обсуждения. Обрати внимание на ключевые идеи, аргументы, числовые данные и вспомогательные детали, но не делай предположений и не добавляй никакой новой информации. Не используй никаких вступительных предложений, заголовков в начале или концовок в конце плана. Подготовь план для того, чтобы он легко вписался в более крупный окончательный план для всей видеоконференции. Оформи свой план в виде ненумерованного списка Markdown.
+            
+            Transcript fragment:
+            
+          text_after: |+
+            
+            Response:
+            
+# =============================================================================
 
 # [OPTIONAL] Whisper.cpp control section, requires only to recognize speech from video
 whisper:
@@ -209,8 +257,8 @@ whisper:
         Windows: "C:\\Users\\andrey.vukolov\\src\\whisper.cpp\\whisper-cli.exe"
         Linux: "/home/twdragon/src/whisper.cpp/build/bin/whisper-cli"
     model_dir:
-        # Windows: "C:\\Users\\andrey.vukolov\\src\\whisper.cpp\\models\\large"
-        Windows: "F:\\twdragon\\src\\whisper.cpp\\models\\large"
+        Windows: "C:\\Users\\andrey.vukolov\\src\\whisper.cpp\\models\\large"
+        # Windows: "F:\\twdragon\\src\\whisper.cpp\\models\\large"
         # Linux: "/home/twdragon/src/whisper.cpp/models/medium"
         Linux: "/home/twdragon/src/whisper.cpp/models/large"
     model_filename: "ggml-large-v3.bin"
